@@ -91,6 +91,8 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
             e.printStackTrace();
         }
         encoderThread = new VideoEncoderThread();
+
+        etRtmpAddress.setText("rtmp://10.10.15.38/live/stream");
     }
 
     @Override

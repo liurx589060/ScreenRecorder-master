@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import net.yrom.screenrecorder.core.RESAudioClient;
 import net.yrom.screenrecorder.core.RESCoreParameters;
+import net.yrom.screenrecorder.operate.RecorderBean;
+import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.task.RtmpStreamingSender;
@@ -45,13 +47,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     private Button mButton;
     private EditText mRtmpAddET;
     private MediaProjectionManager mMediaProjectionManager;
-    private ScreenRecorder mVideoRecorder;
-    private RESAudioClient audioClient;
-    private RtmpStreamingSender streamingSender;
-    private ExecutorService executorService;
     private String rtmpAddr;
-    private boolean isRecording;
-    private RESCoreParameters coreParameters;
 
     public static void launchActivity(Context ctx) {
         Intent it = new Intent(ctx, ScreenRecordActivity.class);
@@ -67,10 +63,12 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        mRtmpAddET.setText("rtmp://10.10.15.38/live/stream");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e("yy","onActivityResult=" + requestCode + "---->>>" + resultCode);
         MediaProjection mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, data);
         if (mediaProjection == null) {
             Log.e("@@", "media projection is null");
@@ -81,41 +79,22 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
             Toast.makeText(this, "rtmp address cannot be null", Toast.LENGTH_SHORT).show();
             return;
         }
-        streamingSender = new RtmpStreamingSender();
-        streamingSender.sendStart(rtmpAddr);
-        RESFlvDataCollecter collecter = new RESFlvDataCollecter() {
-            @Override
-            public void collect(RESFlvData flvData, int type) {
-                if(streamingSender != null) {
-                    streamingSender.sendFood(flvData, type);
-                }
-            }
-        };
-        coreParameters = new RESCoreParameters();
+        RecorderBean bean = new RecorderBean();
+        bean.setRtmpAddr(rtmpAddr);
+        bean.setWidth(1280);
+        bean.setHeight(720);
 
-        audioClient = new RESAudioClient(coreParameters);
-
-        if (!audioClient.prepare()) {
-            LogTools.d("!!!!!audioClient.prepare()failed");
-            return;
-        }
-
-        mVideoRecorder = new ScreenRecorder(collecter, RESFlvData.VIDEO_WIDTH, RESFlvData.VIDEO_HEIGHT, RESFlvData.VIDEO_BITRATE, 1, mediaProjection);
-        mVideoRecorder.start();
-        audioClient.start(collecter);
-
-        executorService = Executors.newCachedThreadPool();
-        executorService.execute(streamingSender);
+        ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
 
         mButton.setText("Stop Recorder");
         Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
-        moveTaskToBack(true);
+//        moveTaskToBack(true);
     }
 
 
     @Override
     public void onClick(View v) {
-        if (mVideoRecorder != null) {
+        if (ScreenRecordOpt.getInstance().isRecording()) {
             stopScreenRecord();
         } else {
             createScreenCapture();
@@ -125,7 +104,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mVideoRecorder != null) {
+        if (ScreenRecordOpt.getInstance().isRecording()) {
             stopScreenRecord();
         }
     }
@@ -133,63 +112,20 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     @Override
     protected void onResume() {
         super.onResume();
-        if (isRecording) stopScreenRecordService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (isRecording) startScreenRecordService();
-    }
-
-    private void startScreenRecordService() {
-        if (mVideoRecorder != null && mVideoRecorder.getStatus()) {
-//            Intent runningServiceIT = new Intent(this, ScreenRecordListenerService.class);
-//            bindService(runningServiceIT, connection, BIND_AUTO_CREATE);
-//            startService(runningServiceIT);
-//            startAutoSendDanmaku();
-        }
-    }
-
-    private void stopScreenRecordService() {
-//        Intent runningServiceIT = new Intent(this, ScreenRecordListenerService.class);
-//        stopService(runningServiceIT);
-//        if (mVideoRecorder != null && mVideoRecorder.getStatus()) {
-//            Toast.makeText(this, "现在正在进行录屏直播哦", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     private void createScreenCapture() {
-        isRecording = true;
         Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
-        startActivityForResult(captureIntent, REQUEST_CODE);
+        startActivityForResult(captureIntent, 1000);
     }
 
     private void stopScreenRecord() {
-        mVideoRecorder.quit();
-        mVideoRecorder = null;
-        if (streamingSender != null) {
-            streamingSender.sendStop();
-            streamingSender.quit();
-            streamingSender = null;
-        }
-        if (executorService != null) {
-            executorService.shutdown();
-            executorService = null;
-        }
+        ScreenRecordOpt.getInstance().stopScreenRecord();
         mButton.setText("Restart recorder");
     }
-
-    public static class RESAudioBuff {
-        public boolean isReadyToFill;
-        public int audioFormat = -1;
-        public byte[] buff;
-
-        public RESAudioBuff(int audioFormat, int size) {
-            isReadyToFill = true;
-            this.audioFormat = audioFormat;
-            buff = new byte[size];
-        }
-    }
-
 }

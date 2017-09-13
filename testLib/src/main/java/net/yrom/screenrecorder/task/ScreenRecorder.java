@@ -22,6 +22,8 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Surface;
 
@@ -40,6 +42,7 @@ import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO
  * @author Yrom
  * Modified by raomengyang 2017-03-12
  */
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class ScreenRecorder extends Thread {
     private static final String TAG = "ScreenRecorder";
 
@@ -80,6 +83,7 @@ public class ScreenRecorder extends Thread {
         mQuit.set(true);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void run() {
         try {
@@ -101,6 +105,7 @@ public class ScreenRecorder extends Thread {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void prepareEncoder() throws IOException {
         MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
@@ -153,6 +158,7 @@ public class ScreenRecorder extends Thread {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void release() {
         if (mEncoder != null) {
             mEncoder.stop();
