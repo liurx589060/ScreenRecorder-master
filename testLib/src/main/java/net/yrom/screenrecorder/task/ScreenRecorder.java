@@ -94,7 +94,7 @@ public class ScreenRecorder extends Thread {
         try {
             try {
                 prepareEncoder();
-                mMuxer = new MediaMuxer(Environment.getExternalStorageDirectory() + "/" + System.currentTimeMillis() + ".mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+//                mMuxer = new MediaMuxer(Environment.getExternalStorageDirectory() + "/" + System.currentTimeMillis() + ".mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -135,17 +135,17 @@ public class ScreenRecorder extends Thread {
                     LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
                     break;
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
-                    LogTools.e("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
+//                    LogTools.e("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
                             mEncoder.getOutputFormat().toString());
                     sendAVCDecoderConfigurationRecord(0, mEncoder.getOutputFormat());
 
-                    if(mMuxer != null) {
-                       mVideoTrackIndex = mMuxer.addTrack(mEncoder.getOutputFormat());
-                        mMuxer.start();
-                    }
+//                    if(mMuxer != null) {
+//                       mVideoTrackIndex = mMuxer.addTrack(mEncoder.getOutputFormat());
+//                        mMuxer.start();
+//                    }
                     break;
                 default:
                     LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
@@ -162,9 +162,9 @@ public class ScreenRecorder extends Thread {
                         realData.limit(mBufferInfo.offset + mBufferInfo.size);
                         sendRealData((mBufferInfo.presentationTimeUs / 1000) - startTime, realData);
 
-                        if(mMuxer != null) {
-                            mMuxer.writeSampleData(mVideoTrackIndex,realData,mBufferInfo);
-                        }
+//                        if(mMuxer != null) {
+//                            mMuxer.writeSampleData(mVideoTrackIndex,realData,mBufferInfo);
+//                        }
                     }
                     mEncoder.releaseOutputBuffer(eobIndex, false);
                     break;
@@ -187,11 +187,11 @@ public class ScreenRecorder extends Thread {
             mMediaProjection.stop();
         }
 
-        if(mMuxer != null) {
-            mMuxer.stop();
-            mMuxer.release();
-            mMuxer = null;
-        }
+//        if(mMuxer != null) {
+//            mMuxer.stop();
+//            mMuxer.release();
+//            mMuxer = null;
+//        }
     }
 
 
@@ -220,6 +220,8 @@ public class ScreenRecorder extends Thread {
         resFlvData.flvTagType = FLV_RTMP_PACKET_TYPE_VIDEO;
         resFlvData.videoFrameType = RESFlvData.NALU_TYPE_IDR;
         mDataCollecter.collect(resFlvData, FLV_RTMP_PACKET_TYPE_VIDEO);
+
+        Log.e("zz","传送关键帧");
     }
 
     private void sendRealData(long tms, ByteBuffer realData) {
@@ -246,5 +248,7 @@ public class ScreenRecorder extends Thread {
         resFlvData.flvTagType = FLV_RTMP_PACKET_TYPE_VIDEO;
         resFlvData.videoFrameType = frameType;
         mDataCollecter.collect(resFlvData, FLV_RTMP_PACKET_TYPE_VIDEO);
+
+        Log.e("zz","传送真实视频数据");
     }
 }
