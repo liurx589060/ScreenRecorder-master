@@ -21,8 +21,10 @@ import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.media.MediaMuxer;
 import android.media.projection.MediaProjection;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Surface;
@@ -53,7 +55,7 @@ public class ScreenRecorder extends Thread {
     private MediaProjection mMediaProjection;
     // parameters for the encoder
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
-    private static final int FRAME_RATE = 30; // 30 fps
+    private static final int FRAME_RATE = 20; // 30 fps
     private static final int IFRAME_INTERVAL = 2; // 2 seconds between I-frames
     private static final int TIMEOUT_US = 10000;
 
@@ -64,6 +66,9 @@ public class ScreenRecorder extends Thread {
     private MediaCodec.BufferInfo mBufferInfo = new MediaCodec.BufferInfo();
     private VirtualDisplay mVirtualDisplay;
     private RESFlvDataCollecter mDataCollecter;
+
+    private MediaMuxer mMuxer;
+    private int mVideoTrackIndex = -1;
 
     public ScreenRecorder(RESFlvDataCollecter dataCollecter, int width, int height, int bitrate, int dpi, MediaProjection mp) {
         super(TAG);
@@ -89,6 +94,7 @@ public class ScreenRecorder extends Thread {
         try {
             try {
                 prepareEncoder();
+                mMuxer = new MediaMuxer(Environment.getExternalStorageDirectory() + "/" + System.currentTimeMillis() + ".mp4", MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -129,12 +135,17 @@ public class ScreenRecorder extends Thread {
                     LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
                     break;
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
-//                    LogTools.d("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
+                    LogTools.e("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
                             mEncoder.getOutputFormat().toString());
                     sendAVCDecoderConfigurationRecord(0, mEncoder.getOutputFormat());
+
+                    if(mMuxer != null) {
+                       mVideoTrackIndex = mMuxer.addTrack(mEncoder.getOutputFormat());
+                        mMuxer.start();
+                    }
                     break;
                 default:
                     LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
@@ -150,6 +161,10 @@ public class ScreenRecorder extends Thread {
                         realData.position(mBufferInfo.offset + 4);
                         realData.limit(mBufferInfo.offset + mBufferInfo.size);
                         sendRealData((mBufferInfo.presentationTimeUs / 1000) - startTime, realData);
+
+                        if(mMuxer != null) {
+                            mMuxer.writeSampleData(mVideoTrackIndex,realData,mBufferInfo);
+                        }
                     }
                     mEncoder.releaseOutputBuffer(eobIndex, false);
                     break;
@@ -170,6 +185,12 @@ public class ScreenRecorder extends Thread {
         }
         if (mMediaProjection != null) {
             mMediaProjection.stop();
+        }
+
+        if(mMuxer != null) {
+            mMuxer.stop();
+            mMuxer.release();
+            mMuxer = null;
         }
     }
 

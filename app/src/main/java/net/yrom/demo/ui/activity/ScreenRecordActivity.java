@@ -39,6 +39,7 @@ import net.yrom.screenrecorder.task.ScreenRecorder;
 import net.yrom.screenrecorder.tools.LogTools;
 import net.yrom.demo.R;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -64,6 +65,24 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mRtmpAddET.setText("rtmp://10.10.15.38/live/stream");
+
+        String str = "10,20,30,60";
+        String[] strArray = str.split(",");
+        int length = strArray.length;
+        int[] levelArray = new int[length + 1];
+        for (int i= 0 ; i < length ; i++) {
+            levelArray[i] = Integer.valueOf(strArray[i]);
+        }
+        int level = 5;
+        levelArray[length] = level;
+        Arrays.sort(levelArray);
+
+        int index = 0;
+        for (int i = 0;i<levelArray.length;i++) {
+            if(level == levelArray[i]) {
+                index = i>0?i -1:i;
+            }
+        }
     }
 
     @Override

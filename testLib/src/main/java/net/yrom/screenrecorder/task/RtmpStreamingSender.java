@@ -1,6 +1,7 @@
 package net.yrom.screenrecorder.task;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import net.yrom.screenrecorder.core.RESCoreParameters;
 import net.yrom.screenrecorder.rtmp.FLvMetaData;
@@ -86,17 +87,21 @@ public class RtmpStreamingSender implements Runnable {
                         RESFlvData flvData = frameQueue.pop();
                         if (writeMsgNum >= (maxQueueLength * 2 / 3) && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
                             LogTools.d("senderQueue is crowded,abandon video");
+                            Log.e("zz","senderQueue is crowded,abandon video");
                             break;
                         }
                         final int res = RtmpClient.write(jniRtmpPointer, flvData.byteBuffer, flvData.byteBuffer.length, flvData.flvTagType, flvData.dts);
                         if (res == 0) {
                             if (flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
                                 LogTools.d("video frame sent = " + flvData.size);
+                                Log.e("zz","video传输 = " + flvData.size);
                             } else {
                                 LogTools.d("audio frame sent = " + flvData.size);
+                                Log.e("zz","音频传输 = " + flvData.size);
                             }
                         } else {
                             LogTools.e("writeError = " + res);
+                            Log.e("zz","传送出错");
                         }
 
                         break;
