@@ -22,21 +22,15 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import net.yrom.screenrecorder.core.RESAudioClient;
-import net.yrom.screenrecorder.core.RESCoreParameters;
 import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
-import net.yrom.screenrecorder.rtmp.RESFlvData;
-import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
-import net.yrom.screenrecorder.task.RtmpStreamingSender;
-import net.yrom.screenrecorder.task.ScreenRecorder;
-import net.yrom.screenrecorder.tools.LogTools;
 import net.yrom.demo.R;
 
 import java.util.Arrays;
@@ -64,7 +58,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2016306375273704?ds=1&s_l=1&a=ATj5x_0reUNssAor");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2025734320997576?ds=1&s_l=1&a=ATi9YUSsl-oPjFwr");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -98,6 +92,8 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
             Toast.makeText(this, "rtmp address cannot be null", Toast.LENGTH_SHORT).show();
             return;
         }
+        DisplayMetrics metric = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metric);
         RecorderBean bean = new RecorderBean();
         bean.setRtmpAddr(rtmpAddr);
         bean.setWidth(1280);

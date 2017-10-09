@@ -9,8 +9,9 @@ public class RESFlvData {
     // video size
     public static final int VIDEO_WIDTH = 1280;
     public static final int VIDEO_HEIGHT = 720;
-    public static final int VIDEO_BITRATE = 2500000; // 2.5Mbps
+    public static final int VIDEO_BITRATE = 2500000; // 3Mbps
     public static final int FPS = 30;
+    public static final int IFRAME_INTERVAL = 2; // 2 seconds between I-frames
     public static final int AAC_SAMPLE_RATE = 44100;
     public static final int AAC_BITRATE = 32 * 1024;
 

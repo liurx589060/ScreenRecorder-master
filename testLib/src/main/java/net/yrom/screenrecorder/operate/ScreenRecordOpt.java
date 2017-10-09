@@ -39,7 +39,7 @@ public class ScreenRecordOpt {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
-        streamingSender = new RtmpStreamingSender();
+        streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
         audioClient = new RESAudioClient(coreParameters);
         executorService = Executors.newCachedThreadPool();
@@ -58,7 +58,7 @@ public class ScreenRecordOpt {
             return;
         }
         if(mVideoRecorder == null) {
-            mVideoRecorder = new ScreenRecorder(collecter, recorderBean.getWidth(), recorderBean.getHeight(), recorderBean.getBitrate(), 1, projection);
+            mVideoRecorder = new ScreenRecorder(collecter, recorderBean, projection);
         }
         mVideoRecorder.start();
         audioClient.start(collecter);

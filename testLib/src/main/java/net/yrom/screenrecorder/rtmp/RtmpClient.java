@@ -6,6 +6,10 @@ package net.yrom.screenrecorder.rtmp;
  */
 public class RtmpClient {
 
+    static {
+        System.loadLibrary("screenrecorderrtmp");
+    }
+
     /**
      * @param url
      * @param isPublishMode

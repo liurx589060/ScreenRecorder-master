@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.yrom.screenrecorder.core.RESCoreParameters;
+import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.rtmp.FLvMetaData;
 import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RtmpClient;
@@ -44,6 +45,17 @@ public class RtmpStreamingSender implements Runnable {
         coreParameters.mediacodecAVCFrameRate = RESFlvData.FPS;
         coreParameters.videoWidth = RESFlvData.VIDEO_WIDTH;
         coreParameters.videoHeight = RESFlvData.VIDEO_HEIGHT;
+
+        fLvMetaData = new FLvMetaData(coreParameters);
+    }
+
+    public RtmpStreamingSender(RecorderBean bean) {
+        coreParameters = new RESCoreParameters();
+        coreParameters.mediacodecAACBitRate = RESFlvData.AAC_BITRATE;
+        coreParameters.mediacodecAACSampleRate = RESFlvData.AAC_SAMPLE_RATE;
+        coreParameters.mediacodecAVCFrameRate = bean.getFps();
+        coreParameters.videoWidth = bean.getWidth();
+        coreParameters.videoHeight = bean.getHeight();
 
         fLvMetaData = new FLvMetaData(coreParameters);
     }

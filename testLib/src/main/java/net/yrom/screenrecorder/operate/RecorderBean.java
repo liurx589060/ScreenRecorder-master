@@ -12,6 +12,8 @@ public class RecorderBean {
     private int height = RESFlvData.VIDEO_HEIGHT;
     private int bitrate = RESFlvData.VIDEO_BITRATE;
     private int dpi = 1;
+    private int fps = RESFlvData.FPS;
+    private int iframe_interval = RESFlvData.IFRAME_INTERVAL; // 2 seconds between I-frames
     private String rtmpAddr;
 
     public int getWidth() {
@@ -52,5 +54,21 @@ public class RecorderBean {
 
     public void setRtmpAddr(String rtmpAddr) {
         this.rtmpAddr = rtmpAddr;
+    }
+
+    public int getFps() {
+        return fps;
+    }
+
+    public void setFps(int fps) {
+        this.fps = fps;
+    }
+
+    public int getIframe_interval() {
+        return iframe_interval;
+    }
+
+    public void setIframe_interval(int iframe_interval) {
+        this.iframe_interval = iframe_interval;
     }
 }

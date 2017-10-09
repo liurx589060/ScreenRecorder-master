@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import net.yrom.screenrecorder.core.Packager;
+import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.tools.LogTools;
@@ -47,16 +48,9 @@ import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class ScreenRecorder extends Thread {
     private static final String TAG = "ScreenRecorder";
-
-    private int mWidth;
-    private int mHeight;
-    private int mBitRate;
-    private int mDpi;
     private MediaProjection mMediaProjection;
     // parameters for the encoder
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
-    private static final int FRAME_RATE = 20; // 30 fps
-    private static final int IFRAME_INTERVAL = 2; // 2 seconds between I-frames
     private static final int TIMEOUT_US = 10000;
 
     private MediaCodec mEncoder;
@@ -69,13 +63,11 @@ public class ScreenRecorder extends Thread {
 
     private MediaMuxer mMuxer;
     private int mVideoTrackIndex = -1;
+    private RecorderBean recorderBean;
 
-    public ScreenRecorder(RESFlvDataCollecter dataCollecter, int width, int height, int bitrate, int dpi, MediaProjection mp) {
+    public ScreenRecorder(RESFlvDataCollecter dataCollecter, RecorderBean bean, MediaProjection mp) {
         super(TAG);
-        mWidth = width;
-        mHeight = height;
-        mBitRate = bitrate;
-        mDpi = dpi;
+        this.recorderBean = bean;
         mMediaProjection = mp;
         startTime = 0;
         mDataCollecter = dataCollecter;
@@ -99,7 +91,7 @@ public class ScreenRecorder extends Thread {
                 throw new RuntimeException(e);
             }
             mVirtualDisplay = mMediaProjection.createVirtualDisplay(TAG + "-display",
-                    mWidth, mHeight, mDpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                    recorderBean.getWidth(), recorderBean.getHeight(), recorderBean.getDpi(), DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
                     mSurface, null, null);
             Log.d(TAG, "created virtual display: " + mVirtualDisplay);
             recordVirtualDisplay();
@@ -113,12 +105,12 @@ public class ScreenRecorder extends Thread {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void prepareEncoder() throws IOException {
-        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
+        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, recorderBean.getWidth(), recorderBean.getHeight());
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, recorderBean.getBitrate());
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, recorderBean.getFps());
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, recorderBean.getIframe_interval());
         Log.d(TAG, "created video format: " + format);
         mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -220,8 +212,6 @@ public class ScreenRecorder extends Thread {
         resFlvData.flvTagType = FLV_RTMP_PACKET_TYPE_VIDEO;
         resFlvData.videoFrameType = RESFlvData.NALU_TYPE_IDR;
         mDataCollecter.collect(resFlvData, FLV_RTMP_PACKET_TYPE_VIDEO);
-
-        Log.e("zz","传送关键帧");
     }
 
     private void sendRealData(long tms, ByteBuffer realData) {
@@ -248,7 +238,5 @@ public class ScreenRecorder extends Thread {
         resFlvData.flvTagType = FLV_RTMP_PACKET_TYPE_VIDEO;
         resFlvData.videoFrameType = frameType;
         mDataCollecter.collect(resFlvData, FLV_RTMP_PACKET_TYPE_VIDEO);
-
-        Log.e("zz","传送真实视频数据");
     }
 }
