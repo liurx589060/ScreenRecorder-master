@@ -15,6 +15,8 @@ import net.yrom.screenrecorder.tools.LogTools;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO;
+
 /**
  * Created by daven.liu on 2017/9/13 0013.
  */
@@ -41,7 +43,6 @@ public class ScreenRecordOpt {
     public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
         streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
-        audioClient = new RESAudioClient(coreParameters);
         executorService = Executors.newCachedThreadPool();
 
         streamingSender.sendStart(recorderBean.getRtmpAddr());
@@ -53,15 +54,22 @@ public class ScreenRecordOpt {
                 }
             }
         };
-        if (!audioClient.prepare()) {
-            LogTools.e("!!!!!audioClient.prepare()failed");
-            return;
+
+        //音频
+        if(recorderBean.isMic()) {
+            audioClient = new RESAudioClient(coreParameters);
+            if (!audioClient.prepare()) {
+                LogTools.e("!!!!!audioClient.prepare()failed");
+                return;
+            }
+            audioClient.start(collecter);
         }
+
+        //视频
         if(mVideoRecorder == null) {
             mVideoRecorder = new ScreenRecorder(collecter, recorderBean, projection);
         }
         mVideoRecorder.start();
-        audioClient.start(collecter);
 
         executorService.execute(streamingSender);
 

@@ -15,6 +15,7 @@ public class RecorderBean {
     private int fps = RESFlvData.FPS;
     private int iframe_interval = RESFlvData.IFRAME_INTERVAL; // 2 seconds between I-frames
     private String rtmpAddr;
+    private boolean isMic = true;//默认为使用麦克风
 
     public int getWidth() {
         return width;
@@ -70,5 +71,13 @@ public class RecorderBean {
 
     public void setIframe_interval(int iframe_interval) {
         this.iframe_interval = iframe_interval;
+    }
+
+    public boolean isMic() {
+        return isMic;
+    }
+
+    public void setMic(boolean mic) {
+        isMic = mic;
     }
 }

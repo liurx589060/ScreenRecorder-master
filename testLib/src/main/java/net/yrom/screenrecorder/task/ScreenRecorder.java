@@ -149,7 +149,6 @@ public class ScreenRecorder extends Thread {
                      * so we ignore MediaCodec.BUFFER_FLAG_CODEC_CONFIG
                      */
                     if (mBufferInfo.flags != MediaCodec.BUFFER_FLAG_CODEC_CONFIG && mBufferInfo.size != 0) {
-                        Log.e("yy","真实数据");
                         ByteBuffer realData = mEncoder.getOutputBuffers()[eobIndex];
                         realData.position(mBufferInfo.offset + 4);
                         realData.limit(mBufferInfo.offset + mBufferInfo.size);
@@ -232,7 +231,7 @@ public class ScreenRecorder extends Thread {
                 frameType == 5,
                 realDataLength);
         RESFlvData resFlvData = new RESFlvData();
-        resFlvData.droppable = true;
+        resFlvData.droppable = false;
         resFlvData.byteBuffer = finalBuff;
         resFlvData.size = finalBuff.length;
         resFlvData.dts = (int) tms;

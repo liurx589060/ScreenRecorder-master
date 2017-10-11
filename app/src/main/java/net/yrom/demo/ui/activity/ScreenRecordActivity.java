@@ -71,7 +71,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2026499364254405?ds=1&a=ATjqHqTdQtuuNHRo");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2026604717577203?ds=1&a=ATgTMqQSBbexPkfG");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -136,10 +136,9 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         RecorderBean bean = new RecorderBean();
         bean.setRtmpAddr(rtmpAddr);
-        bean.setBitrate(500000);
-//        bean.setFps(15);
-        bean.setWidth(1080);
-        bean.setHeight(720);
+        bean.setBitrate(5000000);
+        bean.setWidth(1920);
+        bean.setHeight(1080);
 
         ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
 

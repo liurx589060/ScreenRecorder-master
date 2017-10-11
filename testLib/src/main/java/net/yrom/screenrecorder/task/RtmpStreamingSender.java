@@ -12,6 +12,9 @@ import net.yrom.screenrecorder.tools.LogTools;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO;
 
 /**
  * Created by raomengyang on 12/03/2017.
@@ -19,23 +22,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RtmpStreamingSender implements Runnable {
 
-    private static final int MAX_QUEUE_CAPACITY = 50;
     private AtomicBoolean mQuit = new AtomicBoolean(false);
-    private LinkedBlockingDeque<RESFlvData> frameQueue = new LinkedBlockingDeque<>(MAX_QUEUE_CAPACITY);
+    private LinkedBlockingDeque<RESFlvData> frameQueue = new LinkedBlockingDeque<>();
     private final Object syncWriteMsgNum = new Object();
     private FLvMetaData fLvMetaData;
     private RESCoreParameters coreParameters;
     private volatile int state;
 
     private long jniRtmpPointer = 0;
-    private int maxQueueLength = 50;
-    private int writeMsgNum = 0;
+    private AtomicInteger writeMsgNum = new AtomicInteger(0);
     private String rtmpAddr = null;
 
     private static class STATE {
         private static final int START = 0;
         private static final int RUNNING = 1;
         private static final int STOPPED = 2;
+    }
+
+    public AtomicInteger getWriteMsgNum() {
+        return writeMsgNum;
     }
 
     public RtmpStreamingSender() {
@@ -90,15 +95,12 @@ public class RtmpStreamingSender implements Runnable {
                         }
                         break;
                     case STATE.RUNNING:
-                        synchronized (syncWriteMsgNum) {
-                            --writeMsgNum;
-                        }
                         if (state != STATE.RUNNING) {
                             break;
                         }
-                        RESFlvData flvData = frameQueue.pop();
-                        if (writeMsgNum >= (maxQueueLength * 2 / 3) && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
-                            Log.e("zz","senderQueue is crowded,abandon video");
+//                        RESFlvData flvData = frameQueue.pop();
+                        RESFlvData flvData = frameQueue.poll();
+                        if (writeMsgNum.get() > 5 && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
                             LogTools.d("senderQueue is crowded,abandon video");
                             break;
                         }
@@ -106,6 +108,7 @@ public class RtmpStreamingSender implements Runnable {
                         if (res == 0) {
                             if (flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
                                 LogTools.d("video frame sent = " + flvData.size);
+                                writeMsgNum.getAndDecrement();
                             } else {
                                 LogTools.d("audio frame sent = " + flvData.size);
                             }
@@ -133,7 +136,7 @@ public class RtmpStreamingSender implements Runnable {
 
     public void sendStart(String rtmpAddr) {
         synchronized (syncWriteMsgNum) {
-            writeMsgNum = 0;
+            writeMsgNum.set(0);
         }
         this.rtmpAddr = rtmpAddr;
         state = STATE.START;
@@ -141,7 +144,7 @@ public class RtmpStreamingSender implements Runnable {
 
     public void sendStop() {
         synchronized (syncWriteMsgNum) {
-            writeMsgNum = 0;
+            writeMsgNum.set(0);
         }
         state = STATE.STOPPED;
     }
@@ -149,11 +152,9 @@ public class RtmpStreamingSender implements Runnable {
     public void sendFood(RESFlvData flvData, int type) {
         synchronized (syncWriteMsgNum) {
             //LAKETODO optimize
-            if (writeMsgNum < maxQueueLength) {
-                frameQueue.add(flvData);
-                ++writeMsgNum;
-            } else {
-                LogTools.d("senderQueue is full,abandon");
+            frameQueue.add(flvData);
+            if(type == FLV_RTMP_PACKET_TYPE_VIDEO) {
+                writeMsgNum.getAndIncrement();
             }
         }
     }
