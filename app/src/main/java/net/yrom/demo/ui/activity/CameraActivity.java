@@ -92,7 +92,7 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
         }
         encoderThread = new VideoEncoderThread();
 
-        etRtmpAddress.setText("rtmp://10.10.15.38/live/stream");
+        etRtmpAddress.setText("rtmp://10.10.15.19/live/stream");
     }
 
     @Override

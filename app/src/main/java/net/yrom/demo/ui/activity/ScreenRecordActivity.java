@@ -18,15 +18,21 @@ package net.yrom.demo.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.yrom.screenrecorder.operate.RecorderBean;
@@ -44,6 +50,13 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     private MediaProjectionManager mMediaProjectionManager;
     private String rtmpAddr;
 
+    private WindowManager windowManager;
+    private View floatView;
+    private TextView floatTextView;
+    private Handler mHandler;
+    private long time;
+    private Runnable runnable;
+
     public static void launchActivity(Context ctx) {
         Intent it = new Intent(ctx, ScreenRecordActivity.class);
         it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -58,7 +71,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2025734320997576?ds=1&s_l=1&a=ATi9YUSsl-oPjFwr");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2026499364254405?ds=1&a=ATjqHqTdQtuuNHRo");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -77,6 +90,33 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
                 index = i>0?i -1:i;
             }
         }
+
+        mHandler = new Handler();
+        windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        floatView = LayoutInflater.from(this).inflate(R.layout.float_layout,null);
+        floatTextView = (TextView) floatView.findViewById(R.id.textView);
+    }
+
+    private void addFloatView() {
+        WindowManager.LayoutParams mParams = new WindowManager.LayoutParams();
+        mParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;// 系统提示window
+//        mParams.format = PixelFormat.TRANSLUCENT;// 支持透明
+        mParams.format = PixelFormat.RGBA_8888;
+        mParams.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;// 焦点
+        mParams.width = WindowManager.LayoutParams.WRAP_CONTENT;//窗口的宽和高
+        mParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        mParams.gravity = Gravity.RIGHT| Gravity. CENTER_VERTICAL; // 调整悬浮窗口至右侧中间
+        mParams.x = 0;
+        mParams.y = 0;
+        windowManager.addView(floatView,mParams);
+    }
+
+    private void removeFloatView() {
+        windowManager.removeView(floatView);
+        if(runnable != null) {
+            mHandler.removeCallbacks(runnable);
+        }
+        time = 0;
     }
 
     @Override
@@ -96,13 +136,26 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         RecorderBean bean = new RecorderBean();
         bean.setRtmpAddr(rtmpAddr);
-        bean.setWidth(1280);
+        bean.setBitrate(500000);
+//        bean.setFps(15);
+        bean.setWidth(1080);
         bean.setHeight(720);
 
         ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
 
         mButton.setText("Stop Recorder");
         Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
+
+        addFloatView();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                time++;
+                floatTextView.setText("第" + time + "秒");
+                mHandler.postDelayed(this,100);
+            }
+        };
+        mHandler.post(runnable);
 //        moveTaskToBack(true);
     }
 
@@ -141,6 +194,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
 
     private void stopScreenRecord() {
         ScreenRecordOpt.getInstance().stopScreenRecord();
+        removeFloatView();
         mButton.setText("Restart recorder");
     }
 }

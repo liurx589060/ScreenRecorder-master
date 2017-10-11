@@ -98,6 +98,7 @@ public class RtmpStreamingSender implements Runnable {
                         }
                         RESFlvData flvData = frameQueue.pop();
                         if (writeMsgNum >= (maxQueueLength * 2 / 3) && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
+                            Log.e("zz","senderQueue is crowded,abandon video");
                             LogTools.d("senderQueue is crowded,abandon video");
                             break;
                         }
