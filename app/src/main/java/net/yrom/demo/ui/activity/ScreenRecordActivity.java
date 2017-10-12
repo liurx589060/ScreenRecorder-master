@@ -38,6 +38,7 @@ import android.widget.Toast;
 import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.demo.R;
+import net.yrom.screenrecorder.rtmp.RtmpClient;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -57,6 +58,8 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     private long time;
     private Runnable runnable;
 
+    private long jniPoint;
+
     public static void launchActivity(Context ctx) {
         Intent it = new Intent(ctx, ScreenRecordActivity.class);
         it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -71,7 +74,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2026604717577203?ds=1&a=ATgTMqQSBbexPkfG");
+        mRtmpAddET.setText("rtmp://live-api.facebook.com:80/rtmp/146162269454760?ds=1&a=ATi8Cs0zEonh2csH");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");

@@ -10,6 +10,7 @@ import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RtmpClient;
 import net.yrom.screenrecorder.tools.LogTools;
 
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +33,7 @@ public class RtmpStreamingSender implements Runnable {
     private long jniRtmpPointer = 0;
     private AtomicInteger writeMsgNum = new AtomicInteger(0);
     private String rtmpAddr = null;
+    private RtmpClient rtmpClient;
 
     private static class STATE {
         private static final int START = 0;
@@ -52,6 +54,8 @@ public class RtmpStreamingSender implements Runnable {
         coreParameters.videoHeight = RESFlvData.VIDEO_HEIGHT;
 
         fLvMetaData = new FLvMetaData(coreParameters);
+        rtmpClient = new RtmpClient();
+        Log.e("yy","" + rtmpClient);
     }
 
     public RtmpStreamingSender(RecorderBean bean) {
@@ -63,6 +67,8 @@ public class RtmpStreamingSender implements Runnable {
         coreParameters.videoHeight = bean.getHeight();
 
         fLvMetaData = new FLvMetaData(coreParameters);
+        rtmpClient = new RtmpClient();
+        Log.e("yy","" + rtmpClient);
     }
 
     @Override
@@ -76,21 +82,26 @@ public class RtmpStreamingSender implements Runnable {
                             LogTools.e("rtmp address is null!");
                             break;
                         }
-                        jniRtmpPointer = RtmpClient.open(rtmpAddr, true);
-                        final int openR = jniRtmpPointer == 0 ? 1 : 0;
-                        String serverIpAddr = null;
-                        if (openR == 0) {
-                            serverIpAddr = RtmpClient.getIpAddr(jniRtmpPointer);
-                            LogTools.d("server ip address = " + serverIpAddr);
+                        try {
+                           rtmpClient.open(rtmpAddr, true);
+                        } catch (RtmpClient.RtmpIOException e) {
+                            Log.e("yy","openfail=" + e.toString());
+                            e.printStackTrace();
                         }
-                        if (jniRtmpPointer == 0) {
+
+                        if (rtmpClient.getRtmpPointer() == 0) {
                             break;
                         } else {
                             byte[] MetaData = fLvMetaData.getMetaData();
-                            RtmpClient.write(jniRtmpPointer,
-                                    MetaData,
-                                    MetaData.length,
-                                    RESFlvData.FLV_RTMP_PACKET_TYPE_INFO, 0);
+                            try {
+                                rtmpClient.write(jniRtmpPointer,
+                                        MetaData,
+                                        MetaData.length,
+                                        RESFlvData.FLV_RTMP_PACKET_TYPE_INFO, 0);
+                            } catch (IOException e) {
+                                Log.e("yy","writefail=" + e.toString());
+                                e.printStackTrace();
+                            }
                             state = STATE.RUNNING;
                         }
                         break;
@@ -104,7 +115,13 @@ public class RtmpStreamingSender implements Runnable {
                             LogTools.d("senderQueue is crowded,abandon video");
                             break;
                         }
-                        final int res = RtmpClient.write(jniRtmpPointer, flvData.byteBuffer, flvData.byteBuffer.length, flvData.flvTagType, flvData.dts);
+                        int res = -1;
+                        try {
+                            res = rtmpClient.write(jniRtmpPointer, flvData.byteBuffer, flvData.byteBuffer.length, flvData.flvTagType, flvData.dts);
+                        } catch (IOException e) {
+                            Log.e("yy","running--writefail=" + e.toString());
+                            e.printStackTrace();
+                        }
                         if (res == 0) {
                             if (flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
                                 LogTools.d("video frame sent = " + flvData.size);
@@ -118,20 +135,21 @@ public class RtmpStreamingSender implements Runnable {
 
                         break;
                     case STATE.STOPPED:
-                        if (state == STATE.STOPPED || jniRtmpPointer == 0) {
-                            break;
-                        }
-                        final int closeR = RtmpClient.close(jniRtmpPointer);
-                        serverIpAddr = null;
-                        LogTools.e("close result = " + closeR);
+//                        if (state == STATE.STOPPED || jniRtmpPointer == 0) {
+//                            Log.e("zz","stop=" + jniRtmpPointer);
+//                            final int closeR = RtmpClient.close(jniRtmpPointer);
+//                            serverIpAddr = null;
+//                            LogTools.e("close result = " + closeR);
+//                            quit();
+//                        }
                         break;
                 }
 
             }
 
         }
-        final int closeR = RtmpClient.close(jniRtmpPointer);
-        LogTools.e("close result = " + closeR);
+        Log.e("zz","" + rtmpClient.getRtmpPointer());
+        rtmpClient.close();;
     }
 
     public void sendStart(String rtmpAddr) {

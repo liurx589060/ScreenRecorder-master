@@ -15,8 +15,6 @@ import net.yrom.screenrecorder.tools.LogTools;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO;
-
 /**
  * Created by daven.liu on 2017/9/13 0013.
  */
