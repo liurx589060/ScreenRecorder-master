@@ -34,6 +34,7 @@ public class RtmpStreamingSender implements Runnable {
     private AtomicInteger writeMsgNum = new AtomicInteger(0);
     private String rtmpAddr = null;
     private RtmpClient rtmpClient;
+    private boolean isPause;
 
     private static class STATE {
         private static final int START = 0;
@@ -75,6 +76,9 @@ public class RtmpStreamingSender implements Runnable {
     public void run() {
         while (!mQuit.get()) {
             if (frameQueue.size() > 0) {
+                if(isPause) {//暂停
+                    continue;
+                }
                 switch (state) {
                     case STATE.START:
                         LogTools.d("RESRtmpSender,WorkHandler,tid=" + Thread.currentThread().getId());
@@ -148,8 +152,7 @@ public class RtmpStreamingSender implements Runnable {
             }
 
         }
-        Log.e("zz","" + rtmpClient.getRtmpPointer());
-//        rtmpClient.close();;
+        rtmpClient.close();;
     }
 
     public void sendStart(String rtmpAddr) {
@@ -170,6 +173,7 @@ public class RtmpStreamingSender implements Runnable {
     public void sendFood(RESFlvData flvData, int type) {
         synchronized (syncWriteMsgNum) {
             //LAKETODO optimize
+            if(isPause) return;
             frameQueue.add(flvData);
             if(type == FLV_RTMP_PACKET_TYPE_VIDEO) {
                 writeMsgNum.getAndIncrement();
@@ -180,5 +184,16 @@ public class RtmpStreamingSender implements Runnable {
 
     public final void quit() {
         mQuit.set(true);
+        isPause = false;
+    }
+
+    public void pause() {
+        isPause = true;
+        rtmpClient.pause(true);
+    }
+
+    public void resume() {
+        isPause = false;
+        rtmpClient.pause(false);
     }
 }

@@ -102,6 +102,7 @@ public class RtmpClient {
      *
      */
     public int read(byte[] data, int offset, int size) throws IOException {
+        if(openResult != OPEN_SUCCESS) return -1;
         return nativeRead(data, offset, size, rtmpPointer);
     }
 
@@ -131,6 +132,7 @@ public class RtmpClient {
      * @return true if it is successfull else returns false
      */
     public boolean pause(boolean pause) {
+        if(openResult != OPEN_SUCCESS) return true;
         return nativePause(pause, rtmpPointer);
     }
     private native boolean nativePause(boolean pause, long rtmpPointer);

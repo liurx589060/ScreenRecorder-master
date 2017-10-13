@@ -103,4 +103,16 @@ public class ScreenRecordOpt {
     public boolean isRecording() {
         return isRecording;
     }
+
+    public void pause() {
+        if(streamingSender != null) {
+            streamingSender.pause();
+        }
+    }
+
+    public void resume() {
+        if(streamingSender != null) {
+            streamingSender.resume();
+        }
+    }
 }

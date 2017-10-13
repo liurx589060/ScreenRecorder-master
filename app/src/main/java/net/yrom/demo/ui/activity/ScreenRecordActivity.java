@@ -47,6 +47,8 @@ import java.util.concurrent.Executors;
 public class ScreenRecordActivity extends Activity implements View.OnClickListener {
     private static final int REQUEST_CODE = 1;
     private Button mButton;
+    private Button mPauseBtn;
+    private Button mResumeBtn;
     private EditText mRtmpAddET;
     private MediaProjectionManager mMediaProjectionManager;
     private String rtmpAddr;
@@ -71,10 +73,14 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mButton = (Button) findViewById(R.id.button);
+        mPauseBtn = (Button) findViewById(R.id.pause);
+        mResumeBtn = (Button) findViewById(R.id.resume);
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
+        mPauseBtn.setOnClickListener(this);
+        mResumeBtn.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2027368924167449?ds=1&a=ATjVfOeoavlYk0hG");
+        mRtmpAddET.setText("rtmp://10.10.15.19/live/stream");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -164,10 +170,21 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if (ScreenRecordOpt.getInstance().isRecording()) {
-            stopScreenRecord();
-        } else {
-            createScreenCapture();
+        switch (v.getId()) {
+            case R.id.button:
+                if (ScreenRecordOpt.getInstance().isRecording()) {
+                    stopScreenRecord();
+                } else {
+                    createScreenCapture();
+                }
+                break;
+            case R.id.pause:
+                ScreenRecordOpt.getInstance().pause();
+                break;
+
+            case R.id.resume:
+                ScreenRecordOpt.getInstance().resume();
+                break;
         }
     }
 
