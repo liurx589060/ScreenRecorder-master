@@ -74,7 +74,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api.facebook.com:80/rtmp/146162269454760?ds=1&a=ATi8Cs0zEonh2csH");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2027368924167449?ds=1&a=ATjVfOeoavlYk0hG");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
