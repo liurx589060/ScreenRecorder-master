@@ -1,5 +1,8 @@
 package net.yrom.screenrecorder.operate;
 
+import android.app.Activity;
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.projection.MediaProjection;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -29,6 +32,7 @@ public class ScreenRecordOpt {
     private ExecutorService executorService;
 
     private boolean isRecording;
+    private AudioManager audioManager;
 
     public static ScreenRecordOpt getInstance() {
         if(instance == null) {
@@ -38,7 +42,7 @@ public class ScreenRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
+    public void startScreenRecord(Context context,RecorderBean recorderBean, MediaProjection projection) {
         streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
         executorService = Executors.newCachedThreadPool();
@@ -53,15 +57,18 @@ public class ScreenRecordOpt {
             }
         };
 
-        //音频
-        if(recorderBean.isMic()) {
-            audioClient = new RESAudioClient(coreParameters);
-            if (!audioClient.prepare()) {
-                LogTools.e("!!!!!audioClient.prepare()failed");
-                return;
-            }
-            audioClient.start(collecter);
+        if(!recorderBean.isMic()) {//不是用麦克风
+            audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setMicrophoneMute(true);
         }
+
+        //音频
+        audioClient = new RESAudioClient(coreParameters);
+        if (!audioClient.prepare()) {
+            LogTools.e("!!!!!audioClient.prepare()failed");
+            return;
+        }
+        audioClient.start(collecter);
 
         //视频
         if(mVideoRecorder == null) {
@@ -95,6 +102,10 @@ public class ScreenRecordOpt {
         if (executorService != null) {
             executorService.shutdown();
             executorService = null;
+        }
+
+        if(audioManager != null) {
+            audioManager.setMicrophoneMute(false);
         }
 
         isRecording = false;

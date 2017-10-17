@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.media.AudioManager;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
@@ -148,8 +149,9 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         bean.setBitrate(5000000);
         bean.setWidth(1920);
         bean.setHeight(1080);
+        bean.setMic(true);
 
-        ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
+        ScreenRecordOpt.getInstance().startScreenRecord(this,bean,mediaProjection);
 
         mButton.setText("Stop Recorder");
         Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();

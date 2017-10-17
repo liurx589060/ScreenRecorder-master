@@ -3,6 +3,7 @@ package net.yrom.screenrecorder.core;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.tools.LogTools;
@@ -92,7 +93,7 @@ public class RESAudioClient {
                 resCoreParameters.audioRecoderSampleRate,
                 resCoreParameters.audioRecoderChannelConfig,
                 resCoreParameters.audioRecoderFormat,
-                minBufferSize * 5);
+                minBufferSize * 2);
         audioBuffer = new byte[resCoreParameters.audioRecoderBufferSize];
         if (AudioRecord.STATE_INITIALIZED != audioRecord.getState()) {
             LogTools.e("audioRecord.getState()!=AudioRecord.STATE_INITIALIZED!");
