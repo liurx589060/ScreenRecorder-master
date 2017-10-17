@@ -36,6 +36,10 @@
         <activity
             android:name="net.yrom.demo.ui.activity.CameraActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+
+        <activity
+            android:name="net.yrom.screenrecorder.ui.CameraActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
     </application>
 
 </manifest>

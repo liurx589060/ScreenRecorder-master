@@ -10,6 +10,9 @@ import android.widget.Button;
 
 
 import net.yrom.demo.R;
+import net.yrom.screenrecorder.operate.CameraRecordOpt;
+import net.yrom.screenrecorder.operate.RecorderBean;
+import net.yrom.screenrecorder.ui.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,7 +49,10 @@ public class LaunchActivity extends AppCompatActivity {
                 ScreenRecordActivity.launchActivity(this);
                 break;
             case R.id.btn_camera_record:
-                CameraActivity.launchActivity(this);
+//                CameraActivity.launchActivity(this);
+                RecorderBean recorderBean = new RecorderBean();
+                recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
+                CameraRecordOpt.getInstance().startCameraRecord(this,recorderBean);
                 break;
         }
     }
