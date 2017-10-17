@@ -32,4 +32,10 @@
         android:layout_height="wrap_content"
         android:text="resume" />
 
+    <Button
+        android:id="@+id/mute"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="静音" />
+
 </LinearLayout>

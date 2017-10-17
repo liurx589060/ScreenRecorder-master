@@ -4,10 +4,12 @@ import android.media.MediaCodec;
 import android.util.Log;
 
 import net.yrom.screenrecorder.core.Packager;
+import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static android.content.ContentValues.TAG;
 import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_AUDIO;

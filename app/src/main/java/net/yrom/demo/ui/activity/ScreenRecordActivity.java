@@ -50,6 +50,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     private Button mButton;
     private Button mPauseBtn;
     private Button mResumeBtn;
+    private Button mMuteAudio;
     private EditText mRtmpAddET;
     private MediaProjectionManager mMediaProjectionManager;
     private String rtmpAddr;
@@ -76,12 +77,14 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mButton = (Button) findViewById(R.id.button);
         mPauseBtn = (Button) findViewById(R.id.pause);
         mResumeBtn = (Button) findViewById(R.id.resume);
+        mMuteAudio = (Button) findViewById(R.id.mute);
         mRtmpAddET = (EditText) findViewById(R.id.et_rtmp_address);
         mButton.setOnClickListener(this);
         mPauseBtn.setOnClickListener(this);
         mResumeBtn.setOnClickListener(this);
+        mMuteAudio.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://10.10.15.19/live/stream");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2029064110664597?ds=1&a=ATj8nRmvUUQfn3Vs");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -149,9 +152,14 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         bean.setBitrate(5000000);
         bean.setWidth(1920);
         bean.setHeight(1080);
-        bean.setMic(true);
+        bean.setMic(false);
 
-        ScreenRecordOpt.getInstance().startScreenRecord(this,bean,mediaProjection);
+        ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
+        if(ScreenRecordOpt.getInstance().isMic()) {
+            mMuteAudio.setText("静音");
+        }else {
+            mMuteAudio.setText("打开声音");
+        }
 
         mButton.setText("Stop Recorder");
         Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
@@ -186,6 +194,16 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
 
             case R.id.resume:
                 ScreenRecordOpt.getInstance().resume();
+                break;
+
+            case R.id.mute:
+                if(ScreenRecordOpt.getInstance().isMic()) {
+                    ScreenRecordOpt.getInstance().setMic(false);
+                    mMuteAudio.setText("打开声音");
+                }else {
+                    ScreenRecordOpt.getInstance().setMic(true);
+                    mMuteAudio.setText("静音");
+                }
                 break;
         }
     }

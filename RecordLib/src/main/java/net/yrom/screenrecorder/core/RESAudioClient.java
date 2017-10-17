@@ -5,8 +5,11 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.tools.LogTools;
+
+import java.util.Arrays;
 
 
 /**
@@ -122,6 +125,10 @@ public class RESAudioClient {
             LogTools.d("AudioRecordThread,tid=" + Thread.currentThread().getId());
             while (isRunning) {
                 int size = audioRecord.read(audioBuffer, 0, audioBuffer.length);
+                if (!ScreenRecordOpt.getInstance().isMic()) {
+                    byte clearM = 0;
+                    Arrays.fill(audioBuffer, clearM);
+                }
                 if (isRunning && softAudioCore != null && size > 0) {
                     softAudioCore.queueAudio(audioBuffer);
                 }

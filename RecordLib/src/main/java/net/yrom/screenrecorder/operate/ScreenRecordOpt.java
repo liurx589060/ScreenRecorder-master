@@ -32,7 +32,7 @@ public class ScreenRecordOpt {
     private ExecutorService executorService;
 
     private boolean isRecording;
-    private AudioManager audioManager;
+    private boolean isMic = true;
 
     public static ScreenRecordOpt getInstance() {
         if(instance == null) {
@@ -42,7 +42,8 @@ public class ScreenRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void startScreenRecord(Context context,RecorderBean recorderBean, MediaProjection projection) {
+    public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
+        this.isMic = recorderBean.isMic();
         streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
         executorService = Executors.newCachedThreadPool();
@@ -56,11 +57,6 @@ public class ScreenRecordOpt {
                 }
             }
         };
-
-        if(!recorderBean.isMic()) {//不是用麦克风
-            audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.setMicrophoneMute(true);
-        }
 
         //音频
         audioClient = new RESAudioClient(coreParameters);
@@ -104,11 +100,8 @@ public class ScreenRecordOpt {
             executorService = null;
         }
 
-        if(audioManager != null) {
-            audioManager.setMicrophoneMute(false);
-        }
-
         isRecording = false;
+        isMic = true;
     }
 
     public boolean isRecording() {
@@ -125,5 +118,17 @@ public class ScreenRecordOpt {
         if(streamingSender != null) {
             streamingSender.resume();
         }
+    }
+
+    public boolean isMic() {
+        return isMic;
+    }
+
+    /**
+     * 是否静音，true 为使用麦克风，false为不是用麦克风
+     * @param mute
+     */
+    public void setMic(boolean mute) {
+        this.isMic = mute;
     }
 }

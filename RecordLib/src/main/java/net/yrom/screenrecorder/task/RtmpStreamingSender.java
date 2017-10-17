@@ -37,7 +37,6 @@ public class RtmpStreamingSender implements Runnable {
     private String rtmpAddr = null;
     private RtmpClient rtmpClient;
     private boolean isPause;
-    private boolean isMic = true;//是否使用麦克风
 
     private static class STATE {
         private static final int START = 0;
@@ -68,7 +67,6 @@ public class RtmpStreamingSender implements Runnable {
         coreParameters.mediacodecAVCFrameRate = bean.getFps();
         coreParameters.videoWidth = bean.getWidth();
         coreParameters.videoHeight = bean.getHeight();
-        this.isMic = bean.isMic();45
 
         fLvMetaData = new FLvMetaData(coreParameters);
         rtmpClient = new RtmpClient();
