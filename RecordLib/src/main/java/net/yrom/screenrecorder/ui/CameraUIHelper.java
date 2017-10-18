@@ -2,6 +2,7 @@ package net.yrom.screenrecorder.ui;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -189,6 +190,7 @@ public class CameraUIHelper {
      * 释放页面，一般在onDestroy中调用
      */
     public void release() {
+       stopRecord();
        cameraLivingView.stop();
        cameraLivingView.release();
    }
@@ -204,6 +206,7 @@ public class CameraUIHelper {
      * 关闭
      */
     public void destroyNoActivity() {
+        release();
         ((ViewGroup)cameraLivingView.getParent()).removeView(cameraLivingView);
         if(views != null && views.length > 0) {
             for (View view:views) {
