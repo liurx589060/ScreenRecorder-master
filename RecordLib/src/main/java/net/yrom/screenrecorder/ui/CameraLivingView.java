@@ -7,15 +7,17 @@ import android.media.MediaCodecInfo;
 import android.os.Build;
 import android.os.PowerManager;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import net.yrom.screenrecorder.camera.CameraConfiguration;
 import net.yrom.screenrecorder.camera.CameraData;
 import net.yrom.screenrecorder.camera.CameraHolder;
 import net.yrom.screenrecorder.camera.CameraListener;
+import net.yrom.screenrecorder.camera.CameraVideoController;
 import net.yrom.screenrecorder.camera.VideoConfiguration;
-import net.yrom.screenrecorder.gl.SopCastConstant;
 import net.yrom.screenrecorder.gl.Watermark;
 import net.yrom.screenrecorder.gl.effect.Effect;
+import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.tools.LogTools;
 import net.yrom.screenrecorder.tools.MediaCodecHelper;
 import net.yrom.screenrecorder.tools.ThreadUtils;
@@ -33,13 +35,13 @@ public class CameraLivingView extends CameraView {
     public static final int AUDIO_AEC_ERROR = 7;
     public static final int SDK_VERSION_ERROR = 8;
 
-    private static final String TAG = SopCastConstant.TAG;
     private Context mContext;
     private PowerManager.WakeLock mWakeLock;
     private VideoConfiguration mVideoConfiguration = VideoConfiguration.createDefault();
     private CameraListener mOutCameraOpenListener;
     private LivingStartListener mLivingStartListener;
     private WeakHandler mHandler = new WeakHandler();
+    private CameraVideoController videoController;
 
     public interface LivingStartListener {
         void startError(int error);
@@ -65,20 +67,19 @@ public class CameraLivingView extends CameraView {
     }
 
     private void initView() {
+        videoController = new CameraVideoController(mRenderer);
+        mRenderer.setCameraOpenListener(mCameraOpenListener);
     }
 
     public void init() {
         PowerManager mPowerManager = ((PowerManager) mContext.getSystemService(getContext().POWER_SERVICE));
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-                PowerManager.ON_AFTER_RELEASE, TAG);
-    }
-
-    public void setLivingStartListener(LivingStartListener listener) {
-        mLivingStartListener = listener;
+                PowerManager.ON_AFTER_RELEASE, "CameraLivingView");
     }
 
     public void setVideoConfiguration(VideoConfiguration videoConfiguration) {
         mVideoConfiguration = videoConfiguration;
+        videoController.setVideoConfiguration(mVideoConfiguration);
     }
 
     public void setCameraConfiguration(CameraConfiguration cameraConfiguration) {
@@ -87,29 +88,29 @@ public class CameraLivingView extends CameraView {
 
     private int check() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            LogTools.e("Android sdk version error");
+            LogTools.d("Android sdk version error");
             return SDK_VERSION_ERROR;
         }
 
         if(!isCameraOpen()) {
-            LogTools.e("The camera have not open");
+            LogTools.d("The camera have not open");
             return CAMERA_ERROR;
         }
         MediaCodecInfo videoMediaCodecInfo = MediaCodecHelper.selectCodec(mVideoConfiguration.mime);
         if(videoMediaCodecInfo == null) {
-            LogTools.e("Video type error");
+            LogTools.d("Video type error");
             return VIDEO_TYPE_ERROR;
         }
 
         MediaCodec videoMediaCodec = VideoMediaCodec.getVideoMediaCodec(mVideoConfiguration);
         if(videoMediaCodec == null) {
-            LogTools.e("Video mediacodec configuration error");
+            LogTools.d("Video mediacodec configuration error");
             return VIDEO_CONFIGURATION_ERROR;
         }
         return NO_ERROR;
     }
 
-    public void start() {
+    public void start(final RESFlvDataCollecter collecter) {
         ThreadUtils.processNotUI(new ThreadUtils.INotUIProcessor() {
             @Override
             public void process() {
@@ -124,6 +125,8 @@ public class CameraLivingView extends CameraView {
                         });
                     }
                     screenOn();
+                    videoController.setVideoEncoderListener(collecter);
+                    videoController.start();
                 } else {
                     if(mLivingStartListener != null) {
                         mHandler.post(new Runnable() {
@@ -140,7 +143,7 @@ public class CameraLivingView extends CameraView {
 
     public void stop() {
         screenOff();
-        setAudioNormal();
+        videoController.stop();
     }
 
     private void screenOn() {
@@ -194,8 +197,8 @@ public class CameraLivingView extends CameraView {
         changeFocusModeUI();
     }
 
-    public void switchTorch() {
-        CameraHolder.instance().switchLight();
+    public void switchTorch(boolean isFlight) {
+        CameraHolder.instance().switchLight(isFlight);
     }
 
     public void release() {
@@ -203,7 +206,6 @@ public class CameraLivingView extends CameraView {
         mWakeLock = null;
         CameraHolder.instance().releaseCamera();
         CameraHolder.instance().release();
-        setAudioNormal();
     }
 
     private CameraListener mCameraOpenListener = new CameraListener() {
@@ -227,10 +229,4 @@ public class CameraLivingView extends CameraView {
             // Won't Happen
         }
     };
-
-    private void setAudioNormal() {
-        AudioManager audioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(AudioManager.MODE_NORMAL);
-        audioManager.setSpeakerphoneOn(false);
-    }
 }

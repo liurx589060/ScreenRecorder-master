@@ -32,7 +32,6 @@ public class ScreenRecordOpt {
     private ExecutorService executorService;
 
     private boolean isRecording;
-    private boolean isMic = true;
 
     public static ScreenRecordOpt getInstance() {
         if(instance == null) {
@@ -43,7 +42,6 @@ public class ScreenRecordOpt {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
-        this.isMic = recorderBean.isMic();
         streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
         executorService = Executors.newCachedThreadPool();
@@ -60,6 +58,7 @@ public class ScreenRecordOpt {
 
         //音频
         audioClient = new RESAudioClient(coreParameters);
+        audioClient.setMic(recorderBean.isMic());
         if (!audioClient.prepare()) {
             LogTools.e("!!!!!audioClient.prepare()failed");
             return;
@@ -101,7 +100,6 @@ public class ScreenRecordOpt {
         }
 
         isRecording = false;
-        isMic = true;
     }
 
     public boolean isRecording() {
@@ -121,7 +119,8 @@ public class ScreenRecordOpt {
     }
 
     public boolean isMic() {
-        return isMic;
+        if(audioClient == null) return false;
+        return audioClient.isMic();
     }
 
     /**
@@ -129,6 +128,8 @@ public class ScreenRecordOpt {
      * @param mute
      */
     public void setMic(boolean mute) {
-        this.isMic = mute;
+        if(audioClient != null) {
+            audioClient.setMic(mute);
+        }
     }
 }

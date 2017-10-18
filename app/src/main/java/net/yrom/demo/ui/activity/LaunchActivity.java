@@ -1,6 +1,7 @@
 package net.yrom.demo.ui.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -50,9 +51,13 @@ public class LaunchActivity extends AppCompatActivity {
                 break;
             case R.id.btn_camera_record:
 //                CameraActivity.launchActivity(this);
+
                 RecorderBean recorderBean = new RecorderBean();
                 recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
-                CameraRecordOpt.getInstance().startCameraRecord(this,recorderBean);
+                recorderBean.setWidth(720);
+                recorderBean.setHeight(1280);
+//                CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean);
+                CameraRecordOpt.getInstance().startCameraRecordNoActivity(this,recorderBean,null);
                 break;
         }
     }

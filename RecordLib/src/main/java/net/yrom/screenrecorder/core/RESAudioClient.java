@@ -22,6 +22,7 @@ public class RESAudioClient {
     private AudioRecord audioRecord;
     private byte[] audioBuffer;
     private RESSoftAudioCore softAudioCore;
+    private boolean isMic = true;
 
     public RESAudioClient(RESCoreParameters parameters) {
         resCoreParameters = parameters;
@@ -109,6 +110,14 @@ public class RESAudioClient {
         return true;
     }
 
+    public boolean isMic() {
+        return isMic;
+    }
+
+    public void setMic(boolean mic) {
+        isMic = mic;
+    }
+
     class AudioRecordThread extends Thread {
         private boolean isRunning = true;
 
@@ -118,6 +127,7 @@ public class RESAudioClient {
 
         public void quit() {
             isRunning = false;
+            setMic(true);
         }
 
         @Override
@@ -125,7 +135,7 @@ public class RESAudioClient {
             LogTools.d("AudioRecordThread,tid=" + Thread.currentThread().getId());
             while (isRunning) {
                 int size = audioRecord.read(audioBuffer, 0, audioBuffer.length);
-                if (!ScreenRecordOpt.getInstance().isMic()) {
+                if (!isMic()) {
                     byte clearM = 0;
                     Arrays.fill(audioBuffer, clearM);
                 }

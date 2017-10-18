@@ -1,11 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333333"
+    >
 
-    <net.yrom.screenrecorder.ui.CameraLivingView
-        android:id="@+id/liveView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <net.yrom.screenrecorder.ui.TopRightWeightedLayout
+        android:layout_width="75dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="visible"
+        android:background="#4d000000"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+        <net.yrom.screenrecorder.ui.MultiToggleImageButton
+            android:id="@+id/record_mic_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/record_mic_icons" />
+        <net.yrom.screenrecorder.ui.MultiToggleImageButton
+            android:id="@+id/camera_flash_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_flashmode_icons" />
+        <net.yrom.screenrecorder.ui.MultiToggleImageButton
+            android:id="@+id/camera_switch_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_id_icons" />
+        <net.yrom.screenrecorder.ui.MultiToggleImageButton
+            android:id="@+id/camera_focus_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_focus_icons" />
+        <net.yrom.screenrecorder.ui.MultiToggleImageButton
+            android:id="@+id/camera_render_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_render_icons" />
+    </net.yrom.screenrecorder.ui.TopRightWeightedLayout>
 
     <LinearLayout
         android:layout_width="100dp"
@@ -28,5 +58,6 @@
         android:layout_height="30dip"
         android:layout_centerInParent="true"
         android:visibility="gone"/>
+
 
 </RelativeLayout>

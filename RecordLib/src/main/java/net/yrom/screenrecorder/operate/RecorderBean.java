@@ -1,7 +1,12 @@
 package net.yrom.screenrecorder.operate;
 
+import android.graphics.Bitmap;
+
+import net.yrom.screenrecorder.camera.CameraData;
+import net.yrom.screenrecorder.camera.CameraHolder;
 import net.yrom.screenrecorder.rtmp.RESFlvData;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
+import net.yrom.screenrecorder.ui.CameraUIHelper;
 
 /**
  * Created by daven.liu on 2017/9/13 0013.
@@ -16,6 +21,13 @@ public class RecorderBean {
     private int iframe_interval = RESFlvData.IFRAME_INTERVAL; // 2 seconds between I-frames
     private String rtmpAddr;
     private boolean isMic = true;//默认为使用麦克风
+
+    //Camera
+    private Bitmap waterMakerImg;
+    private boolean isFlight = false;//是否使用闪光灯
+    private int effectType = CameraUIHelper.EFFECT_NORMAL;
+    private int cameraType = CameraUIHelper.CAMERA_BACK;
+    private int focusType = CameraUIHelper.FOCUS_AUTO;
 
     public int getWidth() {
         return width;
@@ -79,5 +91,45 @@ public class RecorderBean {
 
     public void setMic(boolean mic) {
         isMic = mic;
+    }
+
+    public Bitmap getWaterMakerImg() {
+        return waterMakerImg;
+    }
+
+    public void setWaterMakerImg(Bitmap waterMakerImg) {
+        this.waterMakerImg = waterMakerImg;
+    }
+
+    public int getEffectType() {
+        return effectType;
+    }
+
+    public void setEffectType(int effectType) {
+        this.effectType = effectType;
+    }
+
+    public int getCameraType() {
+        return cameraType;
+    }
+
+    public void setCameraType(int cameraType) {
+        this.cameraType = cameraType;
+    }
+
+    public boolean isFlight() {
+        return isFlight;
+    }
+
+    public void setFlight(boolean flight) {
+        isFlight = flight;
+    }
+
+    public int getFocusType() {
+        return focusType;
+    }
+
+    public void setFocusType(int focusType) {
+        this.focusType = focusType;
     }
 }

@@ -6,6 +6,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Looper;
+import android.util.Log;
 
 
 import net.yrom.screenrecorder.camera.CameraHolder;

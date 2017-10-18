@@ -9,6 +9,10 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
+
+import net.yrom.screenrecorder.camera.CameraData;
+import net.yrom.screenrecorder.camera.CameraHolder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

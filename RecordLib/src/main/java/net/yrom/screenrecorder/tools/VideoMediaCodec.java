@@ -27,7 +27,7 @@ public class VideoMediaCodec {
         MediaFormat format = MediaFormat.createVideoFormat(videoConfiguration.mime, videoWidth, videoHeight);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, videoConfiguration.maxBps* 1024);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, videoConfiguration.maxBps);
         int fps = videoConfiguration.fps;
         //设置摄像头预览帧率
         if(BlackListHelper.deviceInFpsBlacklisted()) {

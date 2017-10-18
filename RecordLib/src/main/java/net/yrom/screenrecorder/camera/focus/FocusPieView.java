@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import net.yrom.screenrecorder.R;
 import net.yrom.screenrecorder.camera.CameraData;
 import net.yrom.screenrecorder.camera.CameraHolder;
 

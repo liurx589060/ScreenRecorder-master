@@ -278,7 +278,7 @@ public class CameraHolder {
         }
     }
 
-    public boolean switchLight() {
+    public boolean switchLight(boolean isLight) {
         if(mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
             return false;
         }
@@ -286,11 +286,12 @@ public class CameraHolder {
             return false;
         }
         Camera.Parameters cameraParameters = mCameraDevice.getParameters();
-        if (cameraParameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_OFF)) {
+        if(isLight) {
             cameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        } else {
+        }else {
             cameraParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
         }
+
         try {
             mCameraDevice.setParameters(cameraParameters);
             return true;
