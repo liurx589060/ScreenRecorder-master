@@ -82,7 +82,7 @@ public class CameraUIHelper {
     private void initView() {
         LayoutInflater inflater = LayoutInflater.from(context);
         liveContentView = inflater.inflate(R.layout.layout_camera_living,null);
-        cameraLivingView = liveContentView.findViewById(R.id.liveView);
+        cameraLivingView = (CameraLivingView) liveContentView.findViewById(R.id.liveView);
 
         initEffects();
         initLiveView();
@@ -267,7 +267,6 @@ public class CameraUIHelper {
         cameraLivingView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-                Toast.makeText(context, "camera open success", Toast.LENGTH_LONG).show();
                 //将上层View设置透明以防遮住camera预览页面
                 if(originContentView != null) {
                     originContentView.setBackgroundColor(Color.TRANSPARENT);
@@ -282,16 +281,24 @@ public class CameraUIHelper {
 
                 //设置滤镜
                 setEffect(recorderBean.getEffectType());
+
+                if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                    CameraRecordOpt.getInstance().getCameraCallBack().onSuccess();
+                }
             }
 
             @Override
             public void onOpenFail(int error) {
-                Toast.makeText(context, "camera open fail", Toast.LENGTH_LONG).show();
+                if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                    CameraRecordOpt.getInstance().getCameraCallBack().onError();
+                }
             }
 
             @Override
             public void onCameraChange() {
-                Toast.makeText(context, "camera switch", Toast.LENGTH_LONG).show();
+                if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                    CameraRecordOpt.getInstance().getCameraCallBack().onSwitchCamera();
+                }
             }
         });
 

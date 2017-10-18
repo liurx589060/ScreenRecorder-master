@@ -2,6 +2,7 @@ package net.yrom.screenrecorder.operate;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 
 import net.yrom.screenrecorder.ui.CameraRecordActivity;
@@ -14,6 +15,7 @@ import net.yrom.screenrecorder.ui.CameraUIHelper;
 public class CameraRecordOpt {
     private static CameraRecordOpt instance = null;
     private RecorderBean recorderBean;
+    private ICameraCallBack cameraCallBack;
 
 
     private CameraUIHelper mCameraUIHelper;
@@ -26,12 +28,23 @@ public class CameraRecordOpt {
     }
 
     /**
-     * 开始Camera录制,已打开一个新的Activity的方式
+     * 开始Camera录制,已打开一个新的Activity的方式,默认
      * @param bean
      */
     public void startCameraRecordWithActivity(Context context,RecorderBean bean) {
         this.recorderBean = bean;
         CameraRecordActivity.LaunchActivity(context);
+    }
+
+    /**
+     * 开始Camera录制,已打开一个新的Activity的方式，自定义
+     * @param bean
+     */
+    public void startCameraRecordWithActivity(Context context,RecorderBean bean,Class<? extends Activity> newActivity) {
+        this.recorderBean = bean;
+        Intent intent = new Intent(context,newActivity);
+        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        context.startActivity(intent);
     }
 
     /**
@@ -127,5 +140,48 @@ public class CameraRecordOpt {
             mCameraUIHelper.isRecording();
         }
         return false;
+    }
+
+    public boolean isMic() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.isMic();
+        }
+        return false;
+    }
+
+    public boolean isFlight() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.isFlight();
+        }
+        return false;
+    }
+
+    public int getCameraType() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.getCameraType();
+        }
+        return -1;
+    }
+
+    public int getEffectType() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.getEffectType();
+        }
+        return -1;
+    }
+
+    public int getFocusType() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.getFocusType();
+        }
+        return -1;
+    }
+
+    public ICameraCallBack getCameraCallBack() {
+        return cameraCallBack;
+    }
+
+    public void setCameraCallBack(ICameraCallBack cameraCallBack) {
+        this.cameraCallBack = cameraCallBack;
     }
 }

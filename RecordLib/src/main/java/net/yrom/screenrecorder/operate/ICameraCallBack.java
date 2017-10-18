@@ -5,7 +5,7 @@ package net.yrom.screenrecorder.operate;
  */
 
 public interface ICameraCallBack {
-    public void start();
-    public void stop();
-    public void destroy();
+    public void onSuccess();
+    public void onError();
+    public void onSwitchCamera();
 }

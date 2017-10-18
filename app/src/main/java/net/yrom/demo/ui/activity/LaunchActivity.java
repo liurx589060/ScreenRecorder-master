@@ -8,10 +8,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import net.yrom.demo.R;
 import net.yrom.screenrecorder.operate.CameraRecordOpt;
+import net.yrom.screenrecorder.operate.ICameraCallBack;
 import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.ui.*;
 
@@ -53,11 +55,27 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
-                recorderBean.setWidth(720);
-                recorderBean.setHeight(1280);
-//                CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean);
-                CameraRecordOpt.getInstance().startCameraRecordNoActivity(this,recorderBean,null);
+                recorderBean.setRtmpAddr("rtmp://192.168.1.102/live/stream");
+                recorderBean.setWidth(1280);
+                recorderBean.setHeight(720);
+                CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(LaunchActivity.this,"success",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError() {
+                        Toast.makeText(LaunchActivity.this,"error",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSwitchCamera() {
+                        Toast.makeText(LaunchActivity.this,"onSwitchCamera",Toast.LENGTH_SHORT).show();
+                    }
+                });
+                CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean);
+//                CameraRecordOpt.getInstance().startCameraRecordNoActivity(this,recorderBean,null);
                 break;
         }
     }

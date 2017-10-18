@@ -30,6 +30,7 @@ public class CameraRecordActivity extends Activity {
      */
     public static void LaunchActivity(Context context) {
         Intent intent = new Intent(context, CameraRecordActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         context.startActivity(intent);
     }
 
@@ -125,7 +126,6 @@ public class CameraRecordActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         //停止直播
-        mCameraUIHelper.stopRecord();
         mCameraUIHelper.release();
     }
 }
