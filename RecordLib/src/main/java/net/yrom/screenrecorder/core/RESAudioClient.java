@@ -1,8 +1,11 @@
 package net.yrom.screenrecorder.core;
 
+import android.annotation.TargetApi;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.os.Build;
 import android.util.Log;
 
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
@@ -22,6 +25,7 @@ public class RESAudioClient {
     private AudioRecord audioRecord;
     private byte[] audioBuffer;
     private RESSoftAudioCore softAudioCore;
+    private AcousticEchoCanceler mAcousticEchoCanceler;
     private boolean isMic = true;
 
     public RESAudioClient(RESCoreParameters parameters) {
@@ -89,6 +93,18 @@ public class RESAudioClient {
         softAudioCore.releaseAudioFilter();
     }
 
+    /**
+     * 消除回声
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void enableAcousticEchoCanceler() {
+        mAcousticEchoCanceler = AcousticEchoCanceler.create(audioRecord .getAudioSessionId() );
+        if( mAcousticEchoCanceler.isAvailable() ) {
+            // enable echo canceller
+            mAcousticEchoCanceler.setEnabled( true );
+        }
+    }
+
     private boolean prepareAudio() {
         int minBufferSize = AudioRecord.getMinBufferSize(resCoreParameters.audioRecoderSampleRate,
                 resCoreParameters.audioRecoderChannelConfig,
@@ -97,7 +113,7 @@ public class RESAudioClient {
                 resCoreParameters.audioRecoderSampleRate,
                 resCoreParameters.audioRecoderChannelConfig,
                 resCoreParameters.audioRecoderFormat,
-                minBufferSize * 2);
+                minBufferSize * 5);
         audioBuffer = new byte[resCoreParameters.audioRecoderBufferSize];
         if (AudioRecord.STATE_INITIALIZED != audioRecord.getState()) {
             LogTools.e("audioRecord.getState()!=AudioRecord.STATE_INITIALIZED!");
@@ -107,6 +123,7 @@ public class RESAudioClient {
             LogTools.e("AudioRecord.SUCCESS != audioRecord.setPositionNotificationPeriod(" + resCoreParameters.audioRecoderSliceSize + ")");
             return false;
         }
+        enableAcousticEchoCanceler();
         return true;
     }
 

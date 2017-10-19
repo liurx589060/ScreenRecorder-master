@@ -55,10 +55,9 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
+                recorderBean.setRtmpAddr("rtmp://192.168.1.102/live/stream");
                 recorderBean.setWidth(1280);
                 recorderBean.setHeight(720);
-                recorderBean.setFocusType(CameraUIHelper.FOCUS_TOUCH);
                 CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {
                     @Override
                     public void onSuccess() {

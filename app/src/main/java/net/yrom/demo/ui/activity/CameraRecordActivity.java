@@ -72,47 +72,37 @@ public class CameraRecordActivity extends Activity {
         mBeautyBtn.setTag(CameraRecordOpt.getInstance().getRecorderBean().getEffectType()==CameraUIHelper.EFFECT_GRAY?false:true);
         mFocusBtn.setTag(CameraRecordOpt.getInstance().getRecorderBean().getFocusType()==CameraUIHelper.FOCUS_TOUCH?false:true);
 
-        if((boolean)mMicBtn.getTag()) {
-            mMicBtn.setBackgroundResource(R.drawable.ic_mic_on_normal);
-        }else {
-            mMicBtn.setBackgroundResource(R.drawable.ic_mic_off_normal);
-        }
-
-        if((boolean)mFlashBtn.getTag()) {
-            mFlashBtn.setBackgroundResource(R.drawable.ic_flash_on_normal);
-        }else {
-            mFlashBtn.setBackgroundResource(R.drawable.ic_flash_off_normal);
-        }
-
-        if((boolean)mFaceBtn.getTag()) {
-            mFaceBtn.setBackgroundResource(R.drawable.ic_switch_camera_back_normal);
-        }else {
-            mFaceBtn.setBackgroundResource(R.drawable.ic_switch_camera_front_normal);
-        }
-
-        if((boolean)mBeautyBtn.getTag()) {
-            mBeautyBtn.setBackgroundResource(R.drawable.ic_render_on_normal);
-        }else {
-            mBeautyBtn.setBackgroundResource(R.drawable.ic_render_off_normal);
-        }
-
-        if((boolean)mFocusBtn.getTag()) {
-            mFocusBtn.setBackgroundResource(R.drawable.ic_focus_on_normal);
-        }else {
-            mFocusBtn.setBackgroundResource(R.drawable.ic_focus_off_normal);
-        }
+        setButtonBg(mMicBtn);
+        setButtonBg(mFlashBtn);
+        setButtonBg(mFaceBtn);
+        setButtonBg(mBeautyBtn);
+        setButtonBg(mFocusBtn);
     }
+
+    private void setButtonBg(Button btn) {
+        int resId = 0;
+        boolean flag = (boolean) btn.getTag();
+        if(btn == mMicBtn) {
+            resId = flag?R.drawable.ic_mic_on_normal:R.drawable.ic_mic_off_normal;
+        }else if (btn == mFlashBtn) {
+            resId = flag?R.drawable.ic_flash_on_normal:R.drawable.ic_flash_off_normal;
+        }else if (btn == mFaceBtn) {
+            resId = flag?R.drawable.ic_switch_camera_back_normal:R.drawable.ic_switch_camera_front_normal;
+        }else if (btn == mBeautyBtn) {
+            resId = flag?R.drawable.ic_render_on_normal:R.drawable.ic_render_off_normal;
+        }else if (btn == mFocusBtn) {
+            resId = flag?R.drawable.ic_focus_on_normal:R.drawable.ic_focus_off_normal;
+        }
+        btn.setBackgroundResource(resId);
+    }
+
 
     private void initListeners() {
         mMicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mMicBtn.setTag(!(boolean)mMicBtn.getTag());
-                if((boolean)mMicBtn.getTag()) {
-                    mMicBtn.setBackgroundResource(R.drawable.ic_mic_on_normal);
-                }else {
-                    mMicBtn.setBackgroundResource(R.drawable.ic_mic_off_normal);
-                }
+                setButtonBg(mMicBtn);
 
                 if(mCameraUIHelper.isMic()) {
                     mCameraUIHelper.setMic(false);
@@ -131,11 +121,7 @@ public class CameraRecordActivity extends Activity {
                     mCameraUIHelper.switchLight(true);
                 }
                 mFlashBtn.setTag(!(boolean)mFlashBtn.getTag());
-                if((boolean)mFlashBtn.getTag()) {
-                    mFlashBtn.setBackgroundResource(R.drawable.ic_flash_on_normal);
-                }else {
-                    mFlashBtn.setBackgroundResource(R.drawable.ic_flash_off_normal);
-                }
+                setButtonBg(mFlashBtn);
             }
         });
 
@@ -145,11 +131,7 @@ public class CameraRecordActivity extends Activity {
                 mCameraUIHelper.switchCamera();
 
                 mFaceBtn.setTag(!(boolean)mFaceBtn.getTag());
-                if((boolean)mFaceBtn.getTag()) {
-                    mFaceBtn.setBackgroundResource(R.drawable.ic_switch_camera_back_normal);
-                }else {
-                    mFaceBtn.setBackgroundResource(R.drawable.ic_switch_camera_front_normal);
-                }
+                setButtonBg(mFaceBtn);
             }
         });
 
@@ -157,11 +139,7 @@ public class CameraRecordActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mBeautyBtn.setTag(!(boolean)mBeautyBtn.getTag());
-                if((boolean)mBeautyBtn.getTag()) {
-                    mBeautyBtn.setBackgroundResource(R.drawable.ic_render_on_normal);
-                }else {
-                    mBeautyBtn.setBackgroundResource(R.drawable.ic_render_off_normal);
-                }
+                setButtonBg(mBeautyBtn);
 
                 if(mCameraUIHelper.getEffectType() == CameraUIHelper.EFFECT_GRAY) {
                     mCameraUIHelper.setEffect(CameraUIHelper.EFFECT_NORMAL);
@@ -177,11 +155,7 @@ public class CameraRecordActivity extends Activity {
                 mCameraUIHelper.switchFocusMode();
 
                 mFocusBtn.setTag(!(boolean)mFocusBtn.getTag());
-                if((boolean)mFocusBtn.getTag()) {
-                    mFocusBtn.setBackgroundResource(R.drawable.ic_focus_on_normal);
-                }else {
-                    mFocusBtn.setBackgroundResource(R.drawable.ic_focus_off_normal);
-                }
+                setButtonBg(mFocusBtn);
             }
         });
 
