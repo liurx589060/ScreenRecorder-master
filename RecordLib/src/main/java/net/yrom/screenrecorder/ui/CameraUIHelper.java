@@ -44,7 +44,6 @@ public class CameraUIHelper {
 
     private Activity context;
     private View liveContentView;
-    private View originContentView;
     private View[] views;
     private CameraLivingView cameraLivingView;
     private RecorderBean recorderBean;
@@ -94,9 +93,11 @@ public class CameraUIHelper {
      * @param originView
      */
     public void setContentView(View originView) {
-        this.originContentView = originView;
         context.setContentView(liveContentView);
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        if(originView!= null) {
+            originView.setBackgroundColor(Color.TRANSPARENT);
+        }
         context.addContentView(originView,params);
     }
 
@@ -107,9 +108,12 @@ public class CameraUIHelper {
     public void setContentView(int originViewId) {
         context.setContentView(liveContentView);
         LayoutInflater inflater = LayoutInflater.from(context);
-        originContentView = inflater.inflate(originViewId,null);
+        View originView = inflater.inflate(originViewId,null);
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        context.addContentView(originContentView,params);
+        if(originView!= null) {
+            originView.setBackgroundColor(Color.TRANSPARENT);
+        }
+        context.addContentView(originView,params);
     }
 
     /**
@@ -123,6 +127,7 @@ public class CameraUIHelper {
         if(views != null && views.length > 0) {
             for(View view:views) {
                 context.addContentView(view,params);
+                view.setBackgroundColor(Color.TRANSPARENT);
             }
         }
     }
@@ -149,7 +154,7 @@ public class CameraUIHelper {
 
         //音频
         audioClient = new RESAudioClient(coreParameters);
-        audioClient.setMic(recorderBean.isMic());
+        audioClient.setMic(this.isMic());
         if (!audioClient.prepare()) {
             LogTools.e("!!!!!audioClient.prepare()failed");
             return -1;
@@ -159,6 +164,11 @@ public class CameraUIHelper {
         executorService.execute(streamingSender);
         isRecording = true;
         cameraLivingView.start(collecter);
+
+        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+            CameraRecordOpt.getInstance().getCameraCallBack().onLiveStart();
+        }
+
         return 0;
     }
 
@@ -182,14 +192,19 @@ public class CameraUIHelper {
             executorService = null;
         }
 
-        isRecording = false;
         cameraLivingView.stop();
+
+        if(CameraRecordOpt.getInstance().getCameraCallBack() != null && isRecording()) {
+            CameraRecordOpt.getInstance().getCameraCallBack().onLiveStop();
+        }
+
+        isRecording = false;
     }
 
     /**
      * 释放页面，一般在onDestroy中调用
      */
-    public void release() {
+    public void onDestroy() {
        stopRecord();
        cameraLivingView.stop();
        cameraLivingView.release();
@@ -206,7 +221,7 @@ public class CameraUIHelper {
      * 关闭
      */
     public void destroyNoActivity() {
-        release();
+        onDestroy();
         ((ViewGroup)cameraLivingView.getParent()).removeView(cameraLivingView);
         if(views != null && views.length > 0) {
             for (View view:views) {
@@ -227,7 +242,6 @@ public class CameraUIHelper {
      * 初始化直播页面
      */
     private void initLiveView() {
-        cameraLivingView.init();
         CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
         if(recorderBean.getWidth() > recorderBean.getHeight()) {
             cameraBuilder.setOrientation(CameraConfiguration.Orientation.LANDSCAPE);
@@ -270,20 +284,20 @@ public class CameraUIHelper {
         cameraLivingView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-                //将上层View设置透明以防遮住camera预览页面
-                if(originContentView != null) {
-                    originContentView.setBackgroundColor(Color.TRANSPARENT);
+//                //将上层View设置透明以防遮住camera预览页面
+                if(cameraLivingView!= null) {
+                    cameraLivingView.setBackgroundColor(Color.TRANSPARENT);
                 }
 
                 //设置闪光灯
-                if(recorderBean.isFlight()) {
+                if(isFlight) {
                     switchLight(true);
                 }else {
                     switchLight(false);
                 }
 
                 //设置滤镜
-                setEffect(recorderBean.getEffectType());
+                setEffect(effectType);
 
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
                     CameraRecordOpt.getInstance().getCameraCallBack().onSuccess();
@@ -317,7 +331,7 @@ public class CameraUIHelper {
     }
 
     public boolean isMic() {
-        return isMic;
+        return this.isMic;
     }
 
     /**
@@ -400,18 +414,43 @@ public class CameraUIHelper {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (e1.getX() - e2.getX() > 100
                     && Math.abs(velocityX) > 200) {
-                // Fling left
-                Toast.makeText(context, "Fling Left", Toast.LENGTH_SHORT).show();
+                // Fling left;
             } else if (e2.getX() - e1.getX() > 100
                     && Math.abs(velocityX) > 200) {
                 // Fling right
-                Toast.makeText(context, "Fling Right", Toast.LENGTH_SHORT).show();
             }
             return super.onFling(e1, e2, velocityX, velocityY);
         }
     }
 
+    /**
+     * 暂停
+     */
+    private void pause() {
+        if(streamingSender != null) {
+            streamingSender.pause();
+        }
+    }
+
+    /**
+     * 继续
+     */
+    private void resume() {
+        if(streamingSender != null) {
+            streamingSender.resume();
+        }
+    }
+
     public CameraLivingView getCameraLivingView() {
         return cameraLivingView;
+    }
+
+    /****************生命周期********************/
+    public void onStart() {
+        resume();
+    }
+
+    public void onStop() {
+        pause();
     }
 }

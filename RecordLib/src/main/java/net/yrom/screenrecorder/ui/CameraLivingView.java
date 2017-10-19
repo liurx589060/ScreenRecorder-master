@@ -1,13 +1,10 @@
 package net.yrom.screenrecorder.ui;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.os.Build;
-import android.os.PowerManager;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import net.yrom.screenrecorder.camera.CameraConfiguration;
 import net.yrom.screenrecorder.camera.CameraData;
@@ -36,7 +33,6 @@ public class CameraLivingView extends CameraView {
     public static final int SDK_VERSION_ERROR = 8;
 
     private Context mContext;
-    private PowerManager.WakeLock mWakeLock;
     private VideoConfiguration mVideoConfiguration = VideoConfiguration.createDefault();
     private CameraListener mOutCameraOpenListener;
     private LivingStartListener mLivingStartListener;
@@ -69,12 +65,6 @@ public class CameraLivingView extends CameraView {
     private void initView() {
         videoController = new CameraVideoController(mRenderer);
         mRenderer.setCameraOpenListener(mCameraOpenListener);
-    }
-
-    public void init() {
-        PowerManager mPowerManager = ((PowerManager) mContext.getSystemService(getContext().POWER_SERVICE));
-        mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-                PowerManager.ON_AFTER_RELEASE, "CameraLivingView");
     }
 
     public void setVideoConfiguration(VideoConfiguration videoConfiguration) {
@@ -124,7 +114,6 @@ public class CameraLivingView extends CameraView {
                             }
                         });
                     }
-                    screenOn();
                     videoController.setVideoEncoderListener(collecter);
                     videoController.start();
                 } else {
@@ -142,24 +131,7 @@ public class CameraLivingView extends CameraView {
     }
 
     public void stop() {
-        screenOff();
         videoController.stop();
-    }
-
-    private void screenOn() {
-        if(mWakeLock != null) {
-            if (!mWakeLock.isHeld()) {
-                mWakeLock.acquire();
-            }
-        }
-    }
-
-    private void screenOff() {
-        if(mWakeLock != null) {
-            if (mWakeLock.isHeld()) {
-                mWakeLock.release();
-            }
-        }
     }
 
     public void setEffect(Effect effect) {
@@ -202,8 +174,6 @@ public class CameraLivingView extends CameraView {
     }
 
     public void release() {
-        screenOff();
-        mWakeLock = null;
         CameraHolder.instance().releaseCamera();
         CameraHolder.instance().release();
     }

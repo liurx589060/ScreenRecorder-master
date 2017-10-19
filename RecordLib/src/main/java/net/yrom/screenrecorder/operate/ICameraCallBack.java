@@ -8,4 +8,6 @@ public interface ICameraCallBack {
     public void onSuccess();
     public void onError();
     public void onSwitchCamera();
+    public void onLiveStart();
+    public void onLiveStop();
 }

@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 
 import net.yrom.screenrecorder.camera.exception.CameraHardwareException;
 import net.yrom.screenrecorder.camera.exception.CameraNotSupportException;

@@ -38,6 +38,12 @@
         <activity
             android:name="net.yrom.demo.ui.activity.CameraActivity"
             android:theme="@style/Base.Theme.AppCompat.Light" />
+
+        <activity
+            android:name="net.yrom.demo.ui.activity.CameraRecordActivity"
+            android:configChanges="keyboardHidden|screenSize|screenLayout|orientation"
+            android:screenOrientation="landscape"
+            android:theme="@style/Base.Theme.AppCompat.Light" />
     </application>
 
 </manifest>

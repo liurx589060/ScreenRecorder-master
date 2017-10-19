@@ -55,9 +55,10 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://192.168.1.102/live/stream");
+                recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
                 recorderBean.setWidth(1280);
                 recorderBean.setHeight(720);
+                recorderBean.setFocusType(CameraUIHelper.FOCUS_TOUCH);
                 CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {
                     @Override
                     public void onSuccess() {
@@ -73,8 +74,18 @@ public class LaunchActivity extends AppCompatActivity {
                     public void onSwitchCamera() {
                         Toast.makeText(LaunchActivity.this,"onSwitchCamera",Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onLiveStart() {
+                        Toast.makeText(LaunchActivity.this,"onLiveStart",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLiveStop() {
+                        Toast.makeText(LaunchActivity.this,"onLiveStop",Toast.LENGTH_SHORT).show();
+                    }
                 });
-                CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean);
+                CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean,CameraRecordActivity.class);
 //                CameraRecordOpt.getInstance().startCameraRecordNoActivity(this,recorderBean,null);
                 break;
         }

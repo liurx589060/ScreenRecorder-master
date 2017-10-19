@@ -4,11 +4,6 @@
 
     <application android:allowBackup="true" android:label="@string/app_name"
         android:supportsRtl="true">
-
-        <activity android:name="net.yrom.screenrecorder.ui.CameraRecordActivity"
-            android:configChanges="screenLayout|screenSize|keyboardHidden|orientation"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

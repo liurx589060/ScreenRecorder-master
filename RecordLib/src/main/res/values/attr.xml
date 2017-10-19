@@ -3,8 +3,4 @@
     <declare-styleable name="CameraLivingView">
         <attr name="aspect_ratio" format="float" />
     </declare-styleable>
-
-    <declare-styleable name="MultiToggleImageButton">
-        <attr name="imageIds" format="reference" />
-    </declare-styleable>
 </resources>

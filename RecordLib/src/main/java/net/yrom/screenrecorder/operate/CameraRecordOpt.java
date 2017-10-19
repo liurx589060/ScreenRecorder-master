@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-
-import net.yrom.screenrecorder.ui.CameraRecordActivity;
 import net.yrom.screenrecorder.ui.CameraUIHelper;
 
 /**
@@ -25,15 +23,6 @@ public class CameraRecordOpt {
             instance = new CameraRecordOpt();
         }
         return instance;
-    }
-
-    /**
-     * 开始Camera录制,已打开一个新的Activity的方式,默认
-     * @param bean
-     */
-    public void startCameraRecordWithActivity(Context context,RecorderBean bean) {
-        this.recorderBean = bean;
-        CameraRecordActivity.LaunchActivity(context);
     }
 
     /**
