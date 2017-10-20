@@ -190,7 +190,7 @@ public class RtmpStreamingSender implements Runnable {
     public void pause() {
         isPause = true;
         //去除没有推送出去的缓存
-        frameQueue.clear();
+//        frameQueue.clear();
         rtmpClient.pause(true);
     }
 

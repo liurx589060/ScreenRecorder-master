@@ -55,7 +55,7 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://live-api-a.facebook.com:80/rtmp/2030281793876162?ds=1&a=AThNJX33d122CkxW");
+                recorderBean.setRtmpAddr("rtmp://live-api-a.facebook.com:80/rtmp/2030426157195059?ds=1&a=ATiiDcUL-ry7317K");
                 recorderBean.setWidth(1920);
                 recorderBean.setHeight(1080);
                 CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {

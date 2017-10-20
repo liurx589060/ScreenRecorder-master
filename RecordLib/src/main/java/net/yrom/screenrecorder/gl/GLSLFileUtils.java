@@ -1,6 +1,7 @@
 package net.yrom.screenrecorder.gl;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
