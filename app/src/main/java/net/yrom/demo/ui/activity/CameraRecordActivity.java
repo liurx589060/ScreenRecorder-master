@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
-import net.yrom.demo.R;
+import net.yrom.demo.ResourceUtil;
 import net.yrom.screenrecorder.operate.CameraRecordOpt;
 import net.yrom.screenrecorder.ui.CameraUIHelper;
 
@@ -23,16 +19,6 @@ public class CameraRecordActivity extends Activity {
     private Button mRecordBtn;
 
     private CameraUIHelper mCameraUIHelper;
-
-    private class ButtonState {
-        public boolean isMicPress;
-        public boolean isFlashPress;
-        public boolean isFacePress;
-        public boolean isFocusPress;
-        public boolean isBeautyPress;
-    }
-
-    private ButtonState mButtonState = new ButtonState();
 
     /**
      * 启动Activity
@@ -48,19 +34,19 @@ public class CameraRecordActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCameraUIHelper = new CameraUIHelper(this, CameraRecordOpt.getInstance().getRecorderBean());
-        mCameraUIHelper.setContentView(R.layout.activity_camera_record);
+        mCameraUIHelper.setContentView(ResourceUtil.getLayoutId(this,"activity_camera_record"));
 
         initViews();
         initListeners();
     }
 
     private void initViews() {
-        mMicBtn = (Button) findViewById(R.id.record_mic_button);
-        mFlashBtn = (Button) findViewById(R.id.camera_flash_button);
-        mFaceBtn = (Button) findViewById(R.id.camera_switch_button);
-        mBeautyBtn = (Button) findViewById(R.id.camera_render_button);
-        mFocusBtn = (Button) findViewById(R.id.camera_focus_button);
-        mRecordBtn = (Button) findViewById(R.id.btnRecord);
+        mMicBtn = (Button) findViewById(ResourceUtil.getId(this,"record_mic_button"));
+        mFlashBtn = (Button) findViewById(ResourceUtil.getId(this,"camera_flash_button"));
+        mFaceBtn = (Button) findViewById(ResourceUtil.getId(this,"camera_switch_button"));
+        mBeautyBtn = (Button) findViewById(ResourceUtil.getId(this,"camera_render_button"));
+        mFocusBtn = (Button) findViewById(ResourceUtil.getId(this,"camera_focus_button"));
+        mRecordBtn = (Button) findViewById(ResourceUtil.getId(this,"btnRecord"));
 
         setButtonState();
     }
@@ -83,15 +69,15 @@ public class CameraRecordActivity extends Activity {
         int resId = 0;
         boolean flag = (boolean) btn.getTag();
         if(btn == mMicBtn) {
-            resId = flag?R.drawable.ic_mic_on_normal:R.drawable.ic_mic_off_normal;
+            resId = flag?ResourceUtil.getDrawableId(this,"ic_mic_on_normal"):ResourceUtil.getDrawableId(this,"ic_mic_off_normal");
         }else if (btn == mFlashBtn) {
-            resId = flag?R.drawable.ic_flash_on_normal:R.drawable.ic_flash_off_normal;
+            resId = flag?ResourceUtil.getDrawableId(this,"ic_flash_on_normal"):ResourceUtil.getDrawableId(this,"ic_flash_off_normal");
         }else if (btn == mFaceBtn) {
-            resId = flag?R.drawable.ic_switch_camera_back_normal:R.drawable.ic_switch_camera_front_normal;
+            resId = flag?ResourceUtil.getDrawableId(this,"ic_switch_camera_back_normal"):ResourceUtil.getDrawableId(this,"ic_switch_camera_front_normal");
         }else if (btn == mBeautyBtn) {
-            resId = flag?R.drawable.ic_render_on_normal:R.drawable.ic_render_off_normal;
+            resId = flag?ResourceUtil.getDrawableId(this,"ic_render_on_normal"):ResourceUtil.getDrawableId(this,"ic_render_off_normal");
         }else if (btn == mFocusBtn) {
-            resId = flag?R.drawable.ic_focus_on_normal:R.drawable.ic_focus_off_normal;
+            resId = flag?ResourceUtil.getDrawableId(this,"ic_focus_on_normal"):ResourceUtil.getDrawableId(this,"ic_focus_off_normal");
         }
         btn.setBackgroundResource(resId);
     }
@@ -163,10 +149,10 @@ public class CameraRecordActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if(mCameraUIHelper.isRecording()) {
-                    mRecordBtn.setBackgroundResource(R.drawable.ic_record_start);
+                    mRecordBtn.setBackgroundResource(ResourceUtil.getDrawableId(CameraRecordActivity.this,"ic_record_start"));
                     mCameraUIHelper.stopRecord();
                 } else {
-                    mRecordBtn.setBackgroundResource(R.drawable.ic_record_stop);
+                    mRecordBtn.setBackgroundResource(ResourceUtil.getDrawableId(CameraRecordActivity.this,"ic_record_stop"));
                     //开始直播
                     mCameraUIHelper.startRecord();
                 }
