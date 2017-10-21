@@ -18,6 +18,8 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/libspeexdsp/*.c)
 
  LOCAL_SRC_FILES += speex_native.c
 
+ LOCAL_LDLIBS :=-llog
+
 
 #创建static静态库，动态库为BUILD_SHARED_LIBRARY
 include $(BUILD_SHARED_LIBRARY)
