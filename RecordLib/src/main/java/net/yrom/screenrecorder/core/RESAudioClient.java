@@ -8,6 +8,8 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.os.Build;
 import android.util.Log;
 
+import com.example.libspeex.SpeexNative;
+
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
 import net.yrom.screenrecorder.tools.LogTools;
@@ -27,6 +29,10 @@ public class RESAudioClient {
     private RESSoftAudioCore softAudioCore;
     private AcousticEchoCanceler mAcousticEchoCanceler;
     private boolean isMic = true;
+
+    private final int SPEEX_FRAME_SIZE = 160;
+    private final int SPEEX_FILTER_LENGTH = 160*25;
+    private final int SPEEX_SIMPLING_RATE = 16000;
 
     public RESAudioClient(RESCoreParameters parameters) {
         resCoreParameters = parameters;
@@ -57,6 +63,9 @@ public class RESAudioClient {
             audioRecord.startRecording();
             audioRecordThread = new AudioRecordThread();
             audioRecordThread.start();
+            //LibSpeex的使用,初始化
+            SpeexNative.nativeInitEcho(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
+            SpeexNative.nativeInitDeNose(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
             LogTools.d("RESAudioClient,start()");
             return true;
         }
@@ -72,6 +81,9 @@ public class RESAudioClient {
             softAudioCore.stop();
             audioRecordThread = null;
             audioRecord.stop();
+            //LibSpeex的使用,停止
+            SpeexNative.nativeCloseEcho();
+            SpeexNative.nativeCloseDeNose();
             return true;
         }
     }
@@ -157,7 +169,18 @@ public class RESAudioClient {
                     Arrays.fill(audioBuffer, clearM);
                 }
                 if (isRunning && softAudioCore != null && size > 0) {
+//                    byte[] outBuffer = new byte[audioBuffer.length];
+//                    byte[] playBuffer = new byte[audioBuffer.length];
+//                    byte clearM = 0;
+//                    Arrays.fill(playBuffer, clearM);
+//                    Arrays.fill(outBuffer, clearM);
+//                    SpeexNative.nativeProcEcho(audioBuffer,playBuffer,outBuffer);
+//                    softAudioCore.queueAudio(audioBuffer);
+
+//                    SpeexNative.nativeProcDeNose16K(audioBuffer);
                     softAudioCore.queueAudio(audioBuffer);
+
+//                    softAudioCore.queueAudio(audioBuffer);
                 }
             }
         }
