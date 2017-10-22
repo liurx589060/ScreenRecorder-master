@@ -32,7 +32,7 @@ public class CameraRecordOpt {
     public void startCameraRecordWithActivity(Context context,RecorderBean bean,Class<? extends Activity> newActivity) {
         this.recorderBean = bean;
         Intent intent = new Intent(context,newActivity);
-        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
 
@@ -117,6 +117,9 @@ public class CameraRecordOpt {
     }
 
     public RecorderBean getRecorderBean() {
+        if(recorderBean == null) {
+            recorderBean = new RecorderBean();
+        }
         return recorderBean;
     }
 
