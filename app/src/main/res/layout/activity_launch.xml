@@ -6,6 +6,13 @@
     android:orientation="vertical"
     tools:context="net.yrom.screenrecorder.ui.activity.LaunchActivity">
 
+    <EditText
+        android:id="@+id/address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="请输入直播地址" />
+
     <Button
         android:id="@+id/btn_screen_record"
         android:layout_width="match_parent"
@@ -17,4 +24,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Camera record" />
+
+
 </LinearLayout>

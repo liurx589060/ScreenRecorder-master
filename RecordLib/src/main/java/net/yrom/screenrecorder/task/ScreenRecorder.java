@@ -193,6 +193,7 @@ public class ScreenRecorder extends Thread {
 
 
     private void sendAVCDecoderConfigurationRecord(long tms, MediaFormat format) {
+        if(mDataCollecter == null) return;
         byte[] AVCDecoderConfigurationRecord = Packager.H264Packager.generateAVCDecoderConfigurationRecord(format);
         int packetLen = Packager.FLVPackager.FLV_VIDEO_TAG_LENGTH +
                 AVCDecoderConfigurationRecord.length;
@@ -215,6 +216,7 @@ public class ScreenRecorder extends Thread {
     }
 
     private void sendRealData(long tms, ByteBuffer realData) {
+        if(mDataCollecter == null) return;
         int realDataLength = realData.remaining();
         int packetLen = Packager.FLVPackager.FLV_VIDEO_TAG_LENGTH +
                 Packager.FLVPackager.NALU_HEADER_LENGTH +

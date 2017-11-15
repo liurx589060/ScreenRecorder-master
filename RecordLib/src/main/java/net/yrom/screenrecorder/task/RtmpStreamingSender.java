@@ -37,6 +37,8 @@ public class RtmpStreamingSender implements Runnable {
     private String rtmpAddr = null;
     private RtmpClient rtmpClient;
     private boolean isPause;
+    private boolean isFull;
+    private final int LIMITCOUNT = 2000;
 
     private static class STATE {
         private static final int START = 0;
@@ -76,7 +78,13 @@ public class RtmpStreamingSender implements Runnable {
     public void run() {
         while (!mQuit.get()) {
             if (frameQueue.size() > 0) {
-                if(isPause) {//暂停
+                if(isPause || isFull) {//暂停
+                    if(writeMsgNum.get() > 0) {
+                        writeMsgNum.getAndDecrement();
+                    }else if (writeMsgNum.get() == 0) {
+                        isFull = false;
+                        frameQueue.clear();
+                    }
                     continue;
                 }
                 switch (state) {
@@ -115,10 +123,16 @@ public class RtmpStreamingSender implements Runnable {
                         }
 //                        RESFlvData flvData = frameQueue.pop();
                         RESFlvData flvData = frameQueue.poll();
-                        if (writeMsgNum.get() > 5 && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
+                        if (writeMsgNum.get() > LIMITCOUNT) {
                             LogTools.d("senderQueue is crowded,abandon video");
+                            Log.e("yy","senderQueue is crowded,abandon video");
+                            isFull = true;
                             break;
                         }
+//                        if (writeMsgNum.get() > 5 && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
+//                            LogTools.d("senderQueue is crowded,abandon video");
+//                            break;
+//                        }
                         int res = -1;
                         try {
                             res = rtmpClient.write(jniRtmpPointer, flvData.byteBuffer, flvData.byteBuffer.length, flvData.flvTagType, flvData.dts);
@@ -173,7 +187,8 @@ public class RtmpStreamingSender implements Runnable {
     public void sendFood(RESFlvData flvData, int type) {
         synchronized (syncWriteMsgNum) {
             //LAKETODO optimize
-            if(isPause) return;
+            Log.e("yy","sdfre=" + writeMsgNum.get());
+            if(isPause || isFull) return;
             frameQueue.add(flvData);
             if(type == FLV_RTMP_PACKET_TYPE_VIDEO) {
                 writeMsgNum.getAndIncrement();
@@ -191,11 +206,11 @@ public class RtmpStreamingSender implements Runnable {
         isPause = true;
         //去除没有推送出去的缓存
 //        frameQueue.clear();
-        rtmpClient.pause(true);
+//        rtmpClient.pause(true);
     }
 
     public void resume() {
         isPause = false;
-        rtmpClient.pause(false);
+//        rtmpClient.pause(false);
     }
 }

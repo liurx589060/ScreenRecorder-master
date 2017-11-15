@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 
@@ -28,6 +29,8 @@ public class LaunchActivity extends AppCompatActivity {
     @BindView(R.id.btn_camera_record)
     Button btnCameraRecord;
 
+    EditText mAddress;
+
     private static final int REQUEST_STREAM = 1;
     private static String[] PERMISSIONS_STREAM = {
             Manifest.permission.CAMERA,
@@ -41,6 +44,8 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+        mAddress = (EditText) findViewById(R.id.address);
+//        mAddress.setText("rtmp://live-api-a.facebook.com:80/rtmp/480153555718088?ds=1&a=ATgU_gVweXkoCDT1");
         ButterKnife.bind(this);
         verifyPermissions();
     }
@@ -55,9 +60,10 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://live-api-a.facebook.com:80/rtmp/2030426157195059?ds=1&a=ATiiDcUL-ry7317K");
-                recorderBean.setWidth(1920);
-                recorderBean.setHeight(1080);
+//                recorderBean.setRtmpAddr("rtmp://live-api-a.facebook.com:80/rtmp/2030426157195059?ds=1&a=ATiiDcUL-ry7317K");
+                recorderBean.setRtmpAddr(mAddress.getText().toString());
+                recorderBean.setWidth(1080);
+                recorderBean.setHeight(1920);
                 CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {
                     @Override
                     public void onSuccess() {

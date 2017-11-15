@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_z_160"
         android:layout_alignParentBottom="true"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/relativeLayout">
 
         <Button
             android:id="@+id/btnRecord"
@@ -99,5 +100,4 @@
         </RelativeLayout>
 
     </LinearLayout>
-
 </RelativeLayout>
