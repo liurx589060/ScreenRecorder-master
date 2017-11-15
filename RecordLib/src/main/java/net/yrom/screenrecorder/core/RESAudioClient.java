@@ -105,18 +105,6 @@ public class RESAudioClient {
         softAudioCore.releaseAudioFilter();
     }
 
-    /**
-     * 消除回声
-     */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void enableAcousticEchoCanceler() {
-        mAcousticEchoCanceler = AcousticEchoCanceler.create(audioRecord .getAudioSessionId() );
-        if( mAcousticEchoCanceler.isAvailable() ) {
-            // enable echo canceller
-            mAcousticEchoCanceler.setEnabled( true );
-        }
-    }
-
     private boolean prepareAudio() {
         int minBufferSize = AudioRecord.getMinBufferSize(resCoreParameters.audioRecoderSampleRate,
                 resCoreParameters.audioRecoderChannelConfig,
@@ -135,7 +123,6 @@ public class RESAudioClient {
             LogTools.e("AudioRecord.SUCCESS != audioRecord.setPositionNotificationPeriod(" + resCoreParameters.audioRecoderSliceSize + ")");
             return false;
         }
-        enableAcousticEchoCanceler();
         return true;
     }
 
@@ -168,6 +155,7 @@ public class RESAudioClient {
                     byte clearM = 0;
                     Arrays.fill(audioBuffer, clearM);
                 }
+
                 if (isRunning && softAudioCore != null && size > 0) {
 //                    byte[] outBuffer = new byte[audioBuffer.length];
 //                    byte[] playBuffer = new byte[audioBuffer.length];

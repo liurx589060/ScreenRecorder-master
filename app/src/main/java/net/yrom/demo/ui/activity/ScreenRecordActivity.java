@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -84,7 +85,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mResumeBtn.setOnClickListener(this);
         mMuteAudio.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/485518835181560?ds=1&a=ATg27BVy4VQlC2WX");
+        mRtmpAddET.setText("rtmp://192.168.1.102/live/stream");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -149,7 +150,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         RecorderBean bean = new RecorderBean();
         bean.setRtmpAddr(rtmpAddr);
-        bean.setBitrate(5000000);
+        bean.setBitrate(20000000);
         bean.setWidth(1920);
         bean.setHeight(1080);
 

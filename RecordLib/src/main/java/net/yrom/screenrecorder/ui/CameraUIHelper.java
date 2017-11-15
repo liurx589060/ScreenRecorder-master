@@ -35,12 +35,12 @@ import java.util.concurrent.Executors;
  */
 
 public class CameraUIHelper {
-    public static final int EFFECT_NORMAL = 0x01;//滤镜正常
-    public static final int EFFECT_GRAY = 0x02;//去色滤镜
-    public static final int CAMERA_BACK = 0x03;//背后摄像机
-    public static final int CAMERA_FRONT = 0x04;//前置摄像头
-    public static final int FOCUS_AUTO = 0x05;//自动对焦
-    public static final int FOCUS_TOUCH = 0x06;//手动对焦
+    public static final int EFFECT_NORMAL = 0x01;//�˾�����
+    public static final int EFFECT_GRAY = 0x02;//ȥɫ�˾�
+    public static final int CAMERA_BACK = 0x03;//���������
+    public static final int CAMERA_FRONT = 0x04;//ǰ������ͷ
+    public static final int FOCUS_AUTO = 0x05;//�Զ��Խ�
+    public static final int FOCUS_TOUCH = 0x06;//�ֶ��Խ�
 
     private Activity context;
     private View liveContentView;
@@ -59,11 +59,11 @@ public class CameraUIHelper {
     private RESAudioClient audioClient;
     private ExecutorService executorService;
 
-    private boolean isMic;//是否使用麦克风
-    private boolean isFlight;//是否使用闪光灯
-    private int cameraType;//相机方位
-    private int effectType;//滤镜方式
-    private int focusType;//对焦方式
+    private boolean isMic;//�Ƿ�ʹ����˷�
+    private boolean isFlight;//�Ƿ�ʹ�������
+    private int cameraType;//�����λ
+    private int effectType;//�˾���ʽ
+    private int focusType;//�Խ���ʽ
 
     public CameraUIHelper(Activity context,RecorderBean bean) {
         this.context = context;
@@ -89,7 +89,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 设置Activity的布局
+     * ����Activity�Ĳ���
      * @param originView
      */
     public void setContentView(View originView) {
@@ -102,7 +102,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 设置Activity的布局
+     * ����Activity�Ĳ���
      * @param originViewId
      */
     public void setContentView(int originViewId) {
@@ -117,7 +117,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 在Activity中add View
+     * ��Activity��add View
      */
     public void addContentViewWithSelf(View[] views) {
         this.views = views;
@@ -133,7 +133,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 开始直播
+     * ��ʼֱ��
      * @return
      */
     public int startRecord() {
@@ -152,7 +152,7 @@ public class CameraUIHelper {
             }
         };
 
-        //音频
+        //��Ƶ
         audioClient = new RESAudioClient(coreParameters);
         audioClient.setMic(this.isMic());
         if (!audioClient.prepare()) {
@@ -173,7 +173,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 停止直播
+     * ֱֹͣ��
      */
     public void stopRecord() {
         if(audioClient != null) {
@@ -202,7 +202,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 释放页面，一般在onDestroy中调用
+     * �ͷ�ҳ�棬һ����onDestroy�е���
      */
     public void onDestroy() {
        stopRecord();
@@ -211,14 +211,14 @@ public class CameraUIHelper {
    }
 
     /**
-     * 关闭Activity
+     * �ر�Activity
      */
    public void destroyWithActivity() {
        context.finish();
    }
 
     /**
-     * 关闭
+     * �ر�
      */
     public void destroyNoActivity() {
         onDestroy();
@@ -231,7 +231,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 初始化滤镜
+     * ��ʼ���˾�
      */
     private void initEffects() {
         mGrayEffect = new GrayEffect(context);
@@ -239,7 +239,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 初始化直播页面
+     * ��ʼ��ֱ��ҳ��
      */
     private void initLiveView() {
         CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -274,29 +274,29 @@ public class CameraUIHelper {
         mVideoConfiguration = videoBuilder.build();
         cameraLivingView.setVideoConfiguration(mVideoConfiguration);
 
-//        //设置水印
+//        //����ˮӡ
         if(recorderBean.getWaterMakerImg() != null) {
             Watermark watermark = new Watermark(recorderBean.getWaterMakerImg(), 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
             cameraLivingView.setWatermark(watermark);
         }
 
-        //设置预览监听
+        //����Ԥ������
         cameraLivingView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-//                //将上层View设置透明以防遮住camera预览页面
+//                //���ϲ�View����͸���Է���סcameraԤ��ҳ��
                 if(cameraLivingView!= null) {
                     cameraLivingView.setBackgroundColor(Color.TRANSPARENT);
                 }
 
-                //设置闪光灯
+                //���������
                 if(isFlight) {
                     switchLight(true);
                 }else {
                     switchLight(false);
                 }
 
-                //设置滤镜
+                //�����˾�
                 setEffect(effectType);
 
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
@@ -319,7 +319,7 @@ public class CameraUIHelper {
             }
         });
 
-        //设置手势识别
+        //��������ʶ��
         mGestureDetector = new GestureDetector(context, new GestureListener());
         cameraLivingView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -335,7 +335,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 是否静音
+     * �Ƿ���
      * @param isMic
      */
     public void setMic(boolean isMic) {
@@ -346,7 +346,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 是否打开闪光灯
+     * �Ƿ�������
      */
     public void switchLight(boolean isFlight) {
         this.isFlight = isFlight;
@@ -354,7 +354,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 切换摄像头
+     * �л�����ͷ
      */
     public void switchCamera() {
         if(this.cameraType == CAMERA_BACK) {
@@ -366,7 +366,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 切换滤镜
+     * �л��˾�
      */
     public void setEffect(int type) {
         this.effectType = type;
@@ -378,7 +378,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 切换聚焦方式
+     * �л��۽���ʽ
      */
     public void switchFocusMode() {
         if(this.focusType == FOCUS_AUTO) {
@@ -424,7 +424,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 暂停
+     * ��ͣ
      */
     private void pause() {
         if(streamingSender != null) {
@@ -433,7 +433,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * 继续
+     * ����
      */
     private void resume() {
         if(streamingSender != null) {
@@ -445,7 +445,7 @@ public class CameraUIHelper {
         return cameraLivingView;
     }
 
-    /****************生命周期********************/
+    /****************��������********************/
     public void onStart() {
         resume();
     }
