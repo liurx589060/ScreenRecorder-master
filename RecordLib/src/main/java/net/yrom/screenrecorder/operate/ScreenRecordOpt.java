@@ -1,8 +1,5 @@
 package net.yrom.screenrecorder.operate;
 
-import android.app.Activity;
-import android.content.Context;
-import android.media.AudioManager;
 import android.media.projection.MediaProjection;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -41,7 +38,7 @@ public class ScreenRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection) {
+    public void startScreenRecord(RecorderBean recorderBean, MediaProjection projection,RtmpStreamingSender.IRtmpSendCallBack callBack) {
         streamingSender = new RtmpStreamingSender(recorderBean);
         coreParameters = new RESCoreParameters();
         executorService = Executors.newCachedThreadPool();
@@ -72,6 +69,7 @@ public class ScreenRecordOpt {
         mVideoRecorder.start();
 
         executorService.execute(streamingSender);
+        streamingSender.setRtmpSendCallBack(callBack);
 
         isRecording = true;
     }

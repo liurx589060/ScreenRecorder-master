@@ -1,7 +1,5 @@
 package net.yrom.screenrecorder.task;
 
-import android.content.Context;
-import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -15,9 +13,6 @@ import net.yrom.screenrecorder.tools.LogTools;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO;
 
 /**
  * Created by raomengyang on 12/03/2017.
@@ -26,19 +21,26 @@ import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO
 public class RtmpStreamingSender implements Runnable {
 
     private AtomicBoolean mQuit = new AtomicBoolean(false);
-    private LinkedBlockingDeque<RESFlvData> frameQueue = new LinkedBlockingDeque<>();
+    private LinkedBlockingDeque<RESFlvData> frameQueue = new LinkedBlockingDeque<RESFlvData>();
     private final Object syncWriteMsgNum = new Object();
     private FLvMetaData fLvMetaData;
     private RESCoreParameters coreParameters;
     private volatile int state;
+    private IRtmpSendCallBack rtmpSendCallBack;
+    private int sendErrorCount = 0;
 
     private long jniRtmpPointer = 0;
-    private AtomicInteger writeMsgNum = new AtomicInteger(0);
     private String rtmpAddr = null;
     private RtmpClient rtmpClient;
     private boolean isPause;
     private boolean isFull;
-    private final int LIMITCOUNT = 2000;
+    private long totalSize = 0;//数据所占内存
+    private final long customRestSize = 80*1024*1024;//需要余留的内存数80M
+    private final long defautRerestMaxSize =  80*1024*1024;
+
+    public void setRtmpSendCallBack(IRtmpSendCallBack rtmpSendCallBack) {
+        this.rtmpSendCallBack = rtmpSendCallBack;
+    }
 
     private static class STATE {
         private static final int START = 0;
@@ -46,8 +48,9 @@ public class RtmpStreamingSender implements Runnable {
         private static final int STOPPED = 2;
     }
 
-    public AtomicInteger getWriteMsgNum() {
-        return writeMsgNum;
+    public interface IRtmpSendCallBack {
+        public void sendError();
+        public void connectError();
     }
 
     public RtmpStreamingSender() {
@@ -60,6 +63,8 @@ public class RtmpStreamingSender implements Runnable {
 
         fLvMetaData = new FLvMetaData(coreParameters);
         rtmpClient = new RtmpClient();
+
+        getRestMemory();
     }
 
     public RtmpStreamingSender(RecorderBean bean) {
@@ -72,18 +77,23 @@ public class RtmpStreamingSender implements Runnable {
 
         fLvMetaData = new FLvMetaData(coreParameters);
         rtmpClient = new RtmpClient();
+
+        getRestMemory();
     }
 
     @Override
     public void run() {
-        while (!mQuit.get()) {
+        while (!mQuit.get() || (mQuit.get() && frameQueue.size() > 0)) {
             if (frameQueue.size() > 0) {
                 if(isPause || isFull) {//暂停
-                    if(writeMsgNum.get() > 0) {
-                        writeMsgNum.getAndDecrement();
-                    }else if (writeMsgNum.get() == 0) {
+                    if(totalSize < customRestSize) {
                         isFull = false;
-                        frameQueue.clear();
+                        clearQueue();
+                    }else {
+                        RESFlvData flvData = frameQueue.poll();
+                        if(flvData != null) {
+                            totalSize -= flvData.byteBuffer.length;
+                        }
                     }
                     continue;
                 }
@@ -95,10 +105,13 @@ public class RtmpStreamingSender implements Runnable {
                             break;
                         }
                         try {
-                           rtmpClient.open(rtmpAddr, true);
+                            rtmpClient.open(rtmpAddr, true);
                         } catch (RtmpClient.RtmpIOException e) {
-                            Log.e("yy","openfail=" + e.toString());
+                            Log.e(LogTools.TAG,"openfail=" + e.getMessage());
                             e.printStackTrace();
+                            if(this.rtmpSendCallBack != null) {//连接失败
+                                this.rtmpSendCallBack.connectError();
+                            }
                         }
 
                         if (rtmpClient.getRtmpPointer() == 0) {
@@ -111,7 +124,6 @@ public class RtmpStreamingSender implements Runnable {
                                         MetaData.length,
                                         RESFlvData.FLV_RTMP_PACKET_TYPE_INFO, 0);
                             } catch (IOException e) {
-                                Log.e("yy","writefail=" + e.toString());
                                 e.printStackTrace();
                             }
                             state = STATE.RUNNING;
@@ -121,34 +133,32 @@ public class RtmpStreamingSender implements Runnable {
                         if (state != STATE.RUNNING) {
                             break;
                         }
-//                        RESFlvData flvData = frameQueue.pop();
                         RESFlvData flvData = frameQueue.poll();
-                        if (writeMsgNum.get() > LIMITCOUNT) {
+                        if(flvData == null) break;
+                        totalSize -= flvData.byteBuffer.length;
+                        if (totalSize > getRestMemory()) {
                             LogTools.d("senderQueue is crowded,abandon video");
                             Log.e("yy","senderQueue is crowded,abandon video");
                             isFull = true;
                             break;
                         }
-//                        if (writeMsgNum.get() > 5 && flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO && flvData.droppable) {
-//                            LogTools.d("senderQueue is crowded,abandon video");
-//                            break;
-//                        }
                         int res = -1;
                         try {
                             res = rtmpClient.write(jniRtmpPointer, flvData.byteBuffer, flvData.byteBuffer.length, flvData.flvTagType, flvData.dts);
                         } catch (IOException e) {
-                            Log.e("yy","running--writefail=" + e.toString());
+                            Log.e(LogTools.TAG,"writeError = " + res);
                             e.printStackTrace();
                         }
-                        if (res == 0) {
-                            if (flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
-                                LogTools.d("video frame sent = " + flvData.size);
-                                writeMsgNum.getAndDecrement();
-                            } else {
-                                LogTools.d("audio frame sent = " + flvData.size);
-                            }
-                        } else {
-                            LogTools.e("writeError = " + res);
+
+                        if(res != 0) {//不成功
+                            sendErrorCount ++;
+                        }else {
+                            sendErrorCount = 0;
+                        }
+
+                        Log.e("zz","sendErrorCount=" + sendErrorCount);
+                        if(this.rtmpSendCallBack != null && sendErrorCount == 1000) {
+                            this.rtmpSendCallBack.sendError();
                         }
 
                         break;
@@ -166,33 +176,26 @@ public class RtmpStreamingSender implements Runnable {
             }
 
         }
-        rtmpClient.close();;
+        rtmpClient.close();
     }
 
     public void sendStart(String rtmpAddr) {
-        synchronized (syncWriteMsgNum) {
-            writeMsgNum.set(0);
-        }
         this.rtmpAddr = rtmpAddr;
         state = STATE.START;
     }
 
     public void sendStop() {
-        synchronized (syncWriteMsgNum) {
-            writeMsgNum.set(0);
-        }
         state = STATE.STOPPED;
     }
 
     public void sendFood(RESFlvData flvData, int type) {
+        if(flvData == null) return;
         synchronized (syncWriteMsgNum) {
             //LAKETODO optimize
-            Log.e("yy","sdfre=" + writeMsgNum.get());
             if(isPause || isFull) return;
+            Log.e("yy","sdfre=" + (getRestMemory() - totalSize)/1024/1024);
             frameQueue.add(flvData);
-            if(type == FLV_RTMP_PACKET_TYPE_VIDEO) {
-                writeMsgNum.getAndIncrement();
-            }
+            totalSize += flvData.byteBuffer.length;
         }
     }
 
@@ -204,13 +207,31 @@ public class RtmpStreamingSender implements Runnable {
 
     public void pause() {
         isPause = true;
-        //去除没有推送出去的缓存
-//        frameQueue.clear();
-//        rtmpClient.pause(true);
     }
 
     public void resume() {
         isPause = false;
-//        rtmpClient.pause(false);
+        clearQueue();
+    }
+
+    private void clearQueue() {
+        if(frameQueue == null) return;
+        frameQueue.clear();
+        totalSize = 0;
+    }
+
+    public long getRestMemory() {
+        try {
+            Runtime rt=Runtime.getRuntime();
+            long maxMemory=rt.maxMemory();
+//            Log.e(LogTools.TAG,"maxMemory=" + maxMemory + "---" + maxMemory/1024/1024 + "M");
+            long totalMemory = rt.totalMemory();
+//            Log.e(LogTools.TAG,"totalMemory=" + totalMemory + "---" + totalMemory/1024/1024 + "M");
+//            Log.e(LogTools.TAG,"restMemory=" + (maxMemory - totalMemory) + "---" + (maxMemory - totalMemory)/1024/1024 + "M");
+            return (maxMemory - totalMemory) - customRestSize;
+        }catch (Exception e) {
+            Log.e(LogTools.TAG,e.getMessage());
+            return defautRerestMaxSize;
+        }
     }
 }

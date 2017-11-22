@@ -39,11 +39,9 @@ import android.widget.Toast;
 import net.yrom.screenrecorder.operate.RecorderBean;
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.demo.R;
-import net.yrom.screenrecorder.rtmp.RtmpClient;
+import net.yrom.screenrecorder.task.RtmpStreamingSender;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ScreenRecordActivity extends Activity implements View.OnClickListener {
     private static final int REQUEST_CODE = 1;
@@ -84,7 +82,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mResumeBtn.setOnClickListener(this);
         mMuteAudio.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/485518835181560?ds=1&a=ATg27BVy4VQlC2WX");
+        mRtmpAddET.setText("rtmp://10.10.15.19/live/stream");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -153,7 +151,29 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         bean.setWidth(1920);
         bean.setHeight(1080);
 
-        ScreenRecordOpt.getInstance().startScreenRecord(bean,mediaProjection);
+        ScreenRecordOpt.getInstance().startScreenRecord(bean, mediaProjection, new RtmpStreamingSender.IRtmpSendCallBack() {
+            @Override
+            public void sendError() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ScreenRecordActivity.this,"直播发送数据失败",Toast.LENGTH_LONG).show();
+                        stopScreenRecord();
+                    }
+                });
+            }
+
+            @Override
+            public void connectError() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ScreenRecordActivity.this,"直播连接失败",Toast.LENGTH_LONG).show();
+                        stopScreenRecord();
+                    }
+                });
+            }
+        });
         if(ScreenRecordOpt.getInstance().isMic()) {
             mMuteAudio.setText("静音");
         }else {

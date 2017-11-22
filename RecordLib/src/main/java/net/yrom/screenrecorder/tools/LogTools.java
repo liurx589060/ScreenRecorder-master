@@ -12,7 +12,7 @@ import java.io.Writer;
 import java.net.UnknownHostException;
 
 public class LogTools {
-    protected static final String TAG = "RESLog";
+    public static final String TAG = "RecordLib";
     private static boolean enableLog = true;
 
     public static boolean isEnableLog() {
