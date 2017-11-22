@@ -37,6 +37,7 @@ import net.yrom.screenrecorder.tools.LogTools;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.yrom.screenrecorder.rtmp.RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO;
@@ -64,6 +65,8 @@ public class ScreenRecorder extends Thread {
     private MediaMuxer mMuxer;
     private int mVideoTrackIndex = -1;
     private RecorderBean recorderBean;
+
+    private boolean isPause;
 
     public ScreenRecorder(RESFlvDataCollecter dataCollecter, RecorderBean bean, MediaProjection mp) {
         super(TAG);
@@ -225,6 +228,10 @@ public class ScreenRecorder extends Thread {
         realData.get(finalBuff, Packager.FLVPackager.FLV_VIDEO_TAG_LENGTH +
                         Packager.FLVPackager.NALU_HEADER_LENGTH,
                 realDataLength);
+        if(isPause) {
+            byte clearM = 0;
+            Arrays.fill(finalBuff, clearM);
+        }
         int frameType = finalBuff[Packager.FLVPackager.FLV_VIDEO_TAG_LENGTH +
                 Packager.FLVPackager.NALU_HEADER_LENGTH] & 0x1F;
         Packager.FLVPackager.fillFlvVideoTag(finalBuff,
@@ -240,5 +247,9 @@ public class ScreenRecorder extends Thread {
         resFlvData.flvTagType = FLV_RTMP_PACKET_TYPE_VIDEO;
         resFlvData.videoFrameType = frameType;
         mDataCollecter.collect(resFlvData, FLV_RTMP_PACKET_TYPE_VIDEO);
+    }
+
+    public void pause(boolean isPause) {
+        this.isPause = isPause;
     }
 }

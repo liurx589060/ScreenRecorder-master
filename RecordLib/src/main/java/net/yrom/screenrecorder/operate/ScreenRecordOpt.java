@@ -104,15 +104,25 @@ public class ScreenRecordOpt {
         return isRecording;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void pause() {
         if(streamingSender != null) {
             streamingSender.pause();
         }
+
+        if(mVideoRecorder != null) {
+            mVideoRecorder.pause(true);
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void resume() {
         if(streamingSender != null) {
             streamingSender.resume();
+        }
+
+        if(mVideoRecorder != null) {
+            mVideoRecorder.pause(false);
         }
     }
 
