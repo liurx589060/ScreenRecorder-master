@@ -255,12 +255,12 @@ public class CameraActivity extends AppCompatActivity implements Camera.PreviewC
 //                    LogTools.d("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
                         break;
                     case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                        LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
-                                mEncoder.getOutputFormat().toString());
+//                        LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
+//                                mEncoder.getOutputFormat().toString());
                         sendAVCDecoderConfigurationRecord(0, mEncoder.getOutputFormat());
                         break;
                     default:
-                        LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
+//                        LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
                         if (startTime == 0) {
                             startTime = mBufferInfo.presentationTimeUs / 1000;
                         }

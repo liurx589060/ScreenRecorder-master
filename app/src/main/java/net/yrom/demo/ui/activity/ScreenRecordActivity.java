@@ -60,8 +60,6 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     private long time;
     private Runnable runnable;
 
-    private long jniPoint;
-
     public static void launchActivity(Context ctx) {
         Intent it = new Intent(ctx, ScreenRecordActivity.class);
         it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -82,7 +80,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mResumeBtn.setOnClickListener(this);
         mMuteAudio.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://10.10.15.19/live/stream");
+        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2046775188893489?ds=1&a=ATiBh8GNV6af9Rbm");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -170,6 +168,16 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
                     public void run() {
                         Toast.makeText(ScreenRecordActivity.this,"直播连接失败",Toast.LENGTH_LONG).show();
                         stopScreenRecord();
+                    }
+                });
+            }
+
+            @Override
+            public void netBad() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ScreenRecordActivity.this,"网络较差",Toast.LENGTH_LONG).show();
                     }
                 });
             }

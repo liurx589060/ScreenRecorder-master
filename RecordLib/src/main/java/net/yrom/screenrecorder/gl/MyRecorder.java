@@ -145,14 +145,14 @@ public class MyRecorder {
 				int eobIndex = mMediaCodec.dequeueOutputBuffer(mBufferInfo, TIMEOUT_US);
 				switch (eobIndex) {
 					case MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED:
-						LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
+//						LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
 						break;
 					case MediaCodec.INFO_TRY_AGAIN_LATER:
 //                    LogTools.e("VideoSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
 						break;
 					case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-						LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
-								mMediaCodec.getOutputFormat().toString());
+//						LogTools.d("VideoSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
+//								mMediaCodec.getOutputFormat().toString());
 						sendAVCDecoderConfigurationRecord(0, mMediaCodec.getOutputFormat());
 
 //                    if(mMuxer != null) {
@@ -161,7 +161,7 @@ public class MyRecorder {
 //                    }
 						break;
 					default:
-						LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
+//						LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
 						if (startTime == 0) {
 							startTime = mBufferInfo.presentationTimeUs / 1000;
 						}

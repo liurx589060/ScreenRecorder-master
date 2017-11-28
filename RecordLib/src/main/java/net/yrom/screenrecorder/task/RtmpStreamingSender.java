@@ -13,6 +13,7 @@ import net.yrom.screenrecorder.tools.LogTools;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by raomengyang on 12/03/2017.
@@ -37,6 +38,8 @@ public class RtmpStreamingSender implements Runnable {
     private long totalSize = 0;//数据所占内存
     private final long customRestSize = 80*1024*1024;//需要余留的内存数80M
     private final long defautRerestMaxSize =  80*1024*1024;
+    private final int LIMIT_REST_WRITENUM = 500;//达到500提示网络差
+    private AtomicInteger restWriteNum = new AtomicInteger(0);
 
     public void setRtmpSendCallBack(IRtmpSendCallBack rtmpSendCallBack) {
         this.rtmpSendCallBack = rtmpSendCallBack;
@@ -51,6 +54,7 @@ public class RtmpStreamingSender implements Runnable {
     public interface IRtmpSendCallBack {
         public void sendError();
         public void connectError();
+        public void netBad();
     }
 
     public RtmpStreamingSender() {
@@ -154,11 +158,19 @@ public class RtmpStreamingSender implements Runnable {
                             sendErrorCount ++;
                         }else {
                             sendErrorCount = 0;
+                            if(flvData.flvTagType == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
+                                restWriteNum.getAndDecrement();
+                            }
                         }
 
                         Log.e("zz","sendErrorCount=" + sendErrorCount);
                         if(this.rtmpSendCallBack != null && sendErrorCount == 1000) {
                             this.rtmpSendCallBack.sendError();
+                        }
+
+                        if(this.rtmpSendCallBack != null && restWriteNum.get() >= LIMIT_REST_WRITENUM) {//网络较差
+                            this.rtmpSendCallBack.netBad();
+                            restWriteNum.set(0);
                         }
 
                         break;
@@ -193,9 +205,13 @@ public class RtmpStreamingSender implements Runnable {
         synchronized (syncWriteMsgNum) {
             //LAKETODO optimize
             if(isPause || isFull) return;
-            Log.e("yy","sdfre=" + (getRestMemory() - totalSize)/1024/1024);
+            LogTools.d("restMemory=" + (getRestMemory() - totalSize)/1024/1024);
             frameQueue.add(flvData);
             totalSize += flvData.byteBuffer.length;
+            LogTools.d("restWriteNum=" + restWriteNum.get());
+            if(type == RESFlvData.FLV_RTMP_PACKET_TYPE_VIDEO) {
+                restWriteNum.getAndIncrement();
+            }
         }
     }
 
@@ -218,6 +234,7 @@ public class RtmpStreamingSender implements Runnable {
         if(frameQueue == null) return;
         frameQueue.clear();
         totalSize = 0;
+        restWriteNum.set(0);
     }
 
     public long getRestMemory() {

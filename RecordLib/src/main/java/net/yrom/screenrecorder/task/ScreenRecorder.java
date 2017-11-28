@@ -143,7 +143,7 @@ public class ScreenRecorder extends Thread {
 //                    }
                     break;
                 default:
-                    LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
+//                    LogTools.d("VideoSenderThread,MediaCode,eobIndex=" + eobIndex);
                     if (startTime == 0) {
                         startTime = mBufferInfo.presentationTimeUs / 1000;
                     }

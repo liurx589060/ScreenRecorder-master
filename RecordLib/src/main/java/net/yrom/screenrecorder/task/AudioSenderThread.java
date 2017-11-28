@@ -45,19 +45,19 @@ public class AudioSenderThread extends Thread {
             int eobIndex = dstAudioEncoder.dequeueOutputBuffer(eInfo, WAIT_TIME);
             switch (eobIndex) {
                 case MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED:
-                    Log.d(TAG, "AudioSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
+//                    Log.d(TAG, "AudioSenderThread,MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED");
                     break;
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
 //                        LogTools.d("AudioSenderThread,MediaCodec.INFO_TRY_AGAIN_LATER");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                    Log.d(TAG, "AudioSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
-                            dstAudioEncoder.getOutputFormat().toString());
+//                    Log.d(TAG, "AudioSenderThread,MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" +
+//                            dstAudioEncoder.getOutputFormat().toString());
                     ByteBuffer csd0 = dstAudioEncoder.getOutputFormat().getByteBuffer("csd-0");
                     sendAudioSpecificConfig(0, csd0);
                     break;
                 default:
-                    Log.d(TAG, "AudioSenderThread,MediaCode,eobIndex=" + eobIndex);
+//                    Log.d(TAG, "AudioSenderThread,MediaCode,eobIndex=" + eobIndex);
                     if (startTime == 0) {
                         startTime = eInfo.presentationTimeUs / 1000;
                     }

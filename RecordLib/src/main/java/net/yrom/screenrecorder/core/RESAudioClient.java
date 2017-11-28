@@ -8,7 +8,7 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.os.Build;
 import android.util.Log;
 
-import com.example.libspeex.SpeexNative;
+//import com.example.libspeex.SpeexNative;
 
 import net.yrom.screenrecorder.operate.ScreenRecordOpt;
 import net.yrom.screenrecorder.rtmp.RESFlvDataCollecter;
@@ -64,8 +64,8 @@ public class RESAudioClient {
             audioRecordThread = new AudioRecordThread();
             audioRecordThread.start();
             //LibSpeex的使用,初始化
-            SpeexNative.nativeInitEcho(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
-            SpeexNative.nativeInitDeNose(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
+//            SpeexNative.nativeInitEcho(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
+//            SpeexNative.nativeInitDeNose(SPEEX_FRAME_SIZE,SPEEX_FILTER_LENGTH,SPEEX_SIMPLING_RATE);
             LogTools.d("RESAudioClient,start()");
             return true;
         }
@@ -82,8 +82,8 @@ public class RESAudioClient {
             audioRecordThread = null;
             audioRecord.stop();
             //LibSpeex的使用,停止
-            SpeexNative.nativeCloseEcho();
-            SpeexNative.nativeCloseDeNose();
+//            SpeexNative.nativeCloseEcho();
+//            SpeexNative.nativeCloseDeNose();
             return true;
         }
     }

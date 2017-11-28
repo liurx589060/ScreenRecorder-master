@@ -50,13 +50,13 @@ public class RESSoftAudioCore {
     public void queueAudio(byte[] rawAudioFrame) {
         int targetIndex = (lastAudioQueueBuffIndex + 1) % orignAudioBuffs.length;
         if (orignAudioBuffs[targetIndex].isReadyToFill) {
-            LogTools.d("queueAudio,accept ,targetIndex" + targetIndex);
+//            LogTools.d("queueAudio,accept ,targetIndex" + targetIndex);
             System.arraycopy(rawAudioFrame, 0, orignAudioBuffs[targetIndex].buff, 0, resCoreParameters.audioRecoderBufferSize);
             orignAudioBuffs[targetIndex].isReadyToFill = false;
             lastAudioQueueBuffIndex = targetIndex;
             audioFilterHandler.sendMessage(audioFilterHandler.obtainMessage(AudioFilterHandler.WHAT_INCOMING_BUFF, targetIndex, 0));
         } else {
-            LogTools.d("queueAudio,abandon,targetIndex" + targetIndex);
+//            LogTools.d("queueAudio,abandon,targetIndex" + targetIndex);
         }
     }
 
