@@ -80,7 +80,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         mResumeBtn.setOnClickListener(this);
         mMuteAudio.setOnClickListener(this);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        mRtmpAddET.setText("rtmp://live-api-a.facebook.com:80/rtmp/2046775188893489?ds=1&a=ATiBh8GNV6af9Rbm");
+        mRtmpAddET.setText("rtmp://10.10.15.19/live/stream");
 
         String str = "10,20,30,60";
         String[] strArray = str.split(",");
@@ -178,6 +178,16 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
                     @Override
                     public void run() {
                         Toast.makeText(ScreenRecordActivity.this,"网络较差",Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onStart(String rtmpAddress) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ScreenRecordActivity.this,"开始",Toast.LENGTH_LONG).show();
                     }
                 });
             }

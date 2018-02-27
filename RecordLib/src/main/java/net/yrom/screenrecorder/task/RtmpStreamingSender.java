@@ -55,6 +55,7 @@ public class RtmpStreamingSender implements Runnable {
         public void sendError();
         public void connectError();
         public void netBad();
+        public void onStart(String rtmpAddress);
     }
 
     public RtmpStreamingSender() {
@@ -110,6 +111,9 @@ public class RtmpStreamingSender implements Runnable {
                         }
                         try {
                             rtmpClient.open(rtmpAddr, true);
+                            if(this.rtmpSendCallBack != null) {//连接失败
+                                this.rtmpSendCallBack.onStart(rtmpAddr);
+                            }
                         } catch (RtmpClient.RtmpIOException e) {
                             Log.e(LogTools.TAG,"openfail=" + e.getMessage());
                             e.printStackTrace();

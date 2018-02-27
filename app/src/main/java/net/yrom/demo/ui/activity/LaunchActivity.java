@@ -1,7 +1,6 @@
 package net.yrom.demo.ui.activity;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +14,6 @@ import net.yrom.demo.R;
 import net.yrom.screenrecorder.operate.CameraRecordOpt;
 import net.yrom.screenrecorder.operate.ICameraCallBack;
 import net.yrom.screenrecorder.operate.RecorderBean;
-import net.yrom.screenrecorder.ui.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,6 +25,8 @@ public class LaunchActivity extends AppCompatActivity {
     Button btnScreenRecord;
     @BindView(R.id.btn_camera_record)
     Button btnCameraRecord;
+    @BindView(R.id.btn_audio_record)
+    Button btnAudioRecord;
 
     private static final int REQUEST_STREAM = 1;
     private static String[] PERMISSIONS_STREAM = {
@@ -45,11 +45,14 @@ public class LaunchActivity extends AppCompatActivity {
         verifyPermissions();
     }
 
-    @OnClick({R.id.btn_screen_record, R.id.btn_camera_record})
+    @OnClick({R.id.btn_screen_record, R.id.btn_camera_record,R.id.btn_audio_record})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_screen_record:
                 ScreenRecordActivity.launchActivity(this);
+                break;
+            case R.id.btn_audio_record:
+                AudioRecordActivity.launchActivity(this);
                 break;
             case R.id.btn_camera_record:
 //                CameraActivity.launchActivity(this);

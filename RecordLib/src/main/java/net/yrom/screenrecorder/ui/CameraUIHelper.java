@@ -35,12 +35,12 @@ import java.util.concurrent.Executors;
  */
 
 public class CameraUIHelper {
-    public static final int EFFECT_NORMAL = 0x01;//�˾�����
-    public static final int EFFECT_GRAY = 0x02;//ȥɫ�˾�
-    public static final int CAMERA_BACK = 0x03;//���������
-    public static final int CAMERA_FRONT = 0x04;//ǰ������ͷ
-    public static final int FOCUS_AUTO = 0x05;//�Զ��Խ�
-    public static final int FOCUS_TOUCH = 0x06;//�ֶ��Խ�
+    public static final int EFFECT_NORMAL = 0x01;//???????
+    public static final int EFFECT_GRAY = 0x02;//?????
+    public static final int CAMERA_BACK = 0x03;//?????????
+    public static final int CAMERA_FRONT = 0x04;//????????
+    public static final int FOCUS_AUTO = 0x05;//??????
+    public static final int FOCUS_TOUCH = 0x06;//??????
 
     private Activity context;
     private View liveContentView;
@@ -59,11 +59,11 @@ public class CameraUIHelper {
     private RESAudioClient audioClient;
     private ExecutorService executorService;
 
-    private boolean isMic;//�Ƿ�ʹ����˷�
-    private boolean isFlight;//�Ƿ�ʹ�������
-    private int cameraType;//�����λ
-    private int effectType;//�˾���ʽ
-    private int focusType;//�Խ���ʽ
+    private boolean isMic;//??????????
+    private boolean isFlight;//???????????
+    private int cameraType;//?????λ
+    private int effectType;//??????
+    private int focusType;//??????
 
     public CameraUIHelper(Activity context,RecorderBean bean) {
         this.context = context;
@@ -89,7 +89,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ����Activity�Ĳ���
+     * ????Activity?????
      * @param originView
      */
     public void setContentView(View originView) {
@@ -102,7 +102,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ����Activity�Ĳ���
+     * ????Activity?????
      * @param originViewId
      */
     public void setContentView(int originViewId) {
@@ -117,7 +117,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ��Activity��add View
+     * ??Activity??add View
      */
     public void addContentViewWithSelf(View[] views) {
         this.views = views;
@@ -133,7 +133,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ��ʼֱ��
+     * ??????
      * @return
      */
     public int startRecord() {
@@ -152,7 +152,7 @@ public class CameraUIHelper {
             }
         };
 
-        //��Ƶ
+        //???
         audioClient = new RESAudioClient(coreParameters);
         audioClient.setMic(this.isMic());
         if (!audioClient.prepare()) {
@@ -173,7 +173,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ֱֹͣ��
+     * ?????
      */
     public void stopRecord() {
         if(audioClient != null) {
@@ -202,7 +202,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �ͷ�ҳ�棬һ����onDestroy�е���
+     * ?????棬?????onDestroy?е???
      */
     public void onDestroy() {
        stopRecord();
@@ -211,14 +211,14 @@ public class CameraUIHelper {
    }
 
     /**
-     * �ر�Activity
+     * ???Activity
      */
    public void destroyWithActivity() {
        context.finish();
    }
 
     /**
-     * �ر�
+     * ???
      */
     public void destroyNoActivity() {
         onDestroy();
@@ -231,7 +231,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ��ʼ���˾�
+     * ????????
      */
     private void initEffects() {
         mGrayEffect = new GrayEffect(context);
@@ -239,7 +239,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ��ʼ��ֱ��ҳ��
+     * ???????????
      */
     private void initLiveView() {
         CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -274,40 +274,40 @@ public class CameraUIHelper {
         mVideoConfiguration = videoBuilder.build();
         cameraLivingView.setVideoConfiguration(mVideoConfiguration);
 
-//        //����ˮӡ
+//        //??????
         if(recorderBean.getWaterMakerImg() != null) {
             Watermark watermark = new Watermark(recorderBean.getWaterMakerImg(), 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
             cameraLivingView.setWatermark(watermark);
         }
 
-        //����Ԥ������
+        //???????????
         cameraLivingView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-//                //���ϲ�View����͸���Է���סcameraԤ��ҳ��
+//                //?????View?????????????camera??????
                 if(cameraLivingView!= null) {
                     cameraLivingView.setBackgroundColor(Color.TRANSPARENT);
                 }
 
-                //���������
+                //?????????
                 if(isFlight) {
                     switchLight(true);
                 }else {
                     switchLight(false);
                 }
 
-                //�����˾�
+                //???????
                 setEffect(effectType);
 
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
-                    CameraRecordOpt.getInstance().getCameraCallBack().onSuccess();
+                    CameraRecordOpt.getInstance().getCameraCallBack().onCameraOpenSuccess();
                 }
             }
 
             @Override
             public void onOpenFail(int error) {
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
-                    CameraRecordOpt.getInstance().getCameraCallBack().onError();
+                    CameraRecordOpt.getInstance().getCameraCallBack().onCameraOpenError();
                 }
             }
 
@@ -319,7 +319,7 @@ public class CameraUIHelper {
             }
         });
 
-        //��������ʶ��
+        //???????????
         mGestureDetector = new GestureDetector(context, new GestureListener());
         cameraLivingView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -335,7 +335,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �Ƿ���
+     * ?????
      * @param isMic
      */
     public void setMic(boolean isMic) {
@@ -346,7 +346,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �Ƿ�������
+     * ?????????
      */
     public void switchLight(boolean isFlight) {
         this.isFlight = isFlight;
@@ -354,7 +354,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �л�����ͷ
+     * ?л??????
      */
     public void switchCamera() {
         if(this.cameraType == CAMERA_BACK) {
@@ -366,7 +366,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �л��˾�
+     * ?л????
      */
     public void setEffect(int type) {
         this.effectType = type;
@@ -378,7 +378,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * �л��۽���ʽ
+     * ?л???????
      */
     public void switchFocusMode() {
         if(this.focusType == FOCUS_AUTO) {
@@ -424,7 +424,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ��ͣ
+     * ???
      */
     private void pause() {
         if(streamingSender != null) {
@@ -433,7 +433,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ����
+     * ????
      */
     private void resume() {
         if(streamingSender != null) {
@@ -445,7 +445,7 @@ public class CameraUIHelper {
         return cameraLivingView;
     }
 
-    /****************��������********************/
+    /****************????????********************/
     public void onStart() {
         resume();
     }
