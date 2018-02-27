@@ -22,8 +22,10 @@ import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -128,6 +130,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         time = 0;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e("yy","onActivityResult=" + requestCode + "---->>>" + resultCode);
@@ -215,6 +218,7 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -263,13 +267,14 @@ public class ScreenRecordActivity extends Activity implements View.OnClickListen
         super.onStop();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void createScreenCapture() {
         Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
         startActivityForResult(captureIntent, 1000);
     }
 
     private void stopScreenRecord() {
-        ScreenRecordOpt.getInstance().stopScreenRecord();
+        ScreenRecordOpt.getInstance().stopRecord();
         removeFloatView();
         mButton.setText("Restart recorder");
     }

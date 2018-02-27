@@ -2,13 +2,11 @@ package net.yrom.screenrecorder.ui;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import net.yrom.screenrecorder.R;
 import net.yrom.screenrecorder.camera.CameraConfiguration;
@@ -35,12 +33,12 @@ import java.util.concurrent.Executors;
  */
 
 public class CameraUIHelper {
-    public static final int EFFECT_NORMAL = 0x01;//???????
-    public static final int EFFECT_GRAY = 0x02;//?????
-    public static final int CAMERA_BACK = 0x03;//?????????
-    public static final int CAMERA_FRONT = 0x04;//????????
-    public static final int FOCUS_AUTO = 0x05;//??????
-    public static final int FOCUS_TOUCH = 0x06;//??????
+    public static final int EFFECT_NORMAL = 0x01;//不滤镜
+    public static final int EFFECT_GRAY = 0x02;//灰色滤镜
+    public static final int CAMERA_BACK = 0x03;//背后相机
+    public static final int CAMERA_FRONT = 0x04;//前置相机
+    public static final int FOCUS_AUTO = 0x05;//自动聚焦
+    public static final int FOCUS_TOUCH = 0x06;//手动聚焦
 
     private Activity context;
     private View liveContentView;
@@ -59,11 +57,11 @@ public class CameraUIHelper {
     private RESAudioClient audioClient;
     private ExecutorService executorService;
 
-    private boolean isMic;//??????????
-    private boolean isFlight;//???????????
-    private int cameraType;//?????λ
-    private int effectType;//??????
-    private int focusType;//??????
+    private boolean isMic;//麦克风
+    private boolean isFlight;//闪光灯
+    private int cameraType;//相机类型（背后，前置）
+    private int effectType;//滤镜类型
+    private int focusType;//聚焦类型
 
     public CameraUIHelper(Activity context,RecorderBean bean) {
         this.context = context;
@@ -89,7 +87,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ????Activity?????
+     * 设置Activity的contentView
      * @param originView
      */
     public void setContentView(View originView) {
@@ -102,7 +100,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ????Activity?????
+     * 设置Activity的contentView
      * @param originViewId
      */
     public void setContentView(int originViewId) {
@@ -117,7 +115,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ??Activity??add View
+     * 设置Activity的add View
      */
     public void addContentViewWithSelf(View[] views) {
         this.views = views;
@@ -133,7 +131,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ??????
+     * 开始录制（直播）
      * @return
      */
     public int startRecord() {
@@ -152,7 +150,7 @@ public class CameraUIHelper {
             }
         };
 
-        //???
+        //音频
         audioClient = new RESAudioClient(coreParameters);
         audioClient.setMic(this.isMic());
         if (!audioClient.prepare()) {
@@ -161,19 +159,64 @@ public class CameraUIHelper {
         }
         audioClient.start(collecter);
 
+        streamingSender.setRtmpSendCallBack(new RtmpStreamingSender.IRtmpSendCallBack() {
+            @Override
+            public void sendError() {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                            CameraRecordOpt.getInstance().getCameraCallBack().sendError();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void connectError() {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                            CameraRecordOpt.getInstance().getCameraCallBack().connectError();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void netBad() {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                            CameraRecordOpt.getInstance().getCameraCallBack().netBad();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onStart(final String rtmpAddress) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
+                            CameraRecordOpt.getInstance().getCameraCallBack().onLiveStart(rtmpAddress);
+                        }
+                    }
+                });
+            }
+        });
         executorService.execute(streamingSender);
         isRecording = true;
         cameraLivingView.start(collecter);
-
-        if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
-            CameraRecordOpt.getInstance().getCameraCallBack().onLiveStart();
-        }
 
         return 0;
     }
 
     /**
-     * ?????
+     * 停止录制（直播）
      */
     public void stopRecord() {
         if(audioClient != null) {
@@ -202,7 +245,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ?????棬?????onDestroy?е???
+     * Activity onDestroy（在Activity中调用）
      */
     public void onDestroy() {
        stopRecord();
@@ -211,14 +254,14 @@ public class CameraUIHelper {
    }
 
     /**
-     * ???Activity
+     * Activity
      */
    public void destroyWithActivity() {
        context.finish();
    }
 
     /**
-     * ???
+     * 自身的destroy
      */
     public void destroyNoActivity() {
         onDestroy();
@@ -230,17 +273,11 @@ public class CameraUIHelper {
         }
     }
 
-    /**
-     * ????????
-     */
     private void initEffects() {
         mGrayEffect = new GrayEffect(context);
         mNullEffect = new NullEffect(context);
     }
 
-    /**
-     * ???????????
-     */
     private void initLiveView() {
         CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
         if(recorderBean.getWidth() > recorderBean.getHeight()) {
@@ -274,29 +311,25 @@ public class CameraUIHelper {
         mVideoConfiguration = videoBuilder.build();
         cameraLivingView.setVideoConfiguration(mVideoConfiguration);
 
-//        //??????
         if(recorderBean.getWaterMakerImg() != null) {
             Watermark watermark = new Watermark(recorderBean.getWaterMakerImg(), 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
             cameraLivingView.setWatermark(watermark);
         }
 
-        //???????????
         cameraLivingView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-//                //?????View?????????????camera??????
+//                //open camera success
                 if(cameraLivingView!= null) {
                     cameraLivingView.setBackgroundColor(Color.TRANSPARENT);
                 }
 
-                //?????????
                 if(isFlight) {
                     switchLight(true);
                 }else {
                     switchLight(false);
                 }
 
-                //???????
                 setEffect(effectType);
 
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
@@ -314,12 +347,12 @@ public class CameraUIHelper {
             @Override
             public void onCameraChange() {
                 if(CameraRecordOpt.getInstance().getCameraCallBack() != null) {
-                    CameraRecordOpt.getInstance().getCameraCallBack().onSwitchCamera();
+                    CameraRecordOpt.getInstance().getCameraCallBack().onSwitchCamera(cameraType);
                 }
             }
         });
 
-        //???????????
+        //聚焦的手势
         mGestureDetector = new GestureDetector(context, new GestureListener());
         cameraLivingView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -330,12 +363,16 @@ public class CameraUIHelper {
         });
     }
 
+    /**
+     * 是否启用麦克风
+     * @return
+     */
     public boolean isMic() {
         return this.isMic;
     }
 
     /**
-     * ?????
+     * 设置是否用麦克风
      * @param isMic
      */
     public void setMic(boolean isMic) {
@@ -346,7 +383,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ?????????
+     * 切换闪光灯
      */
     public void switchLight(boolean isFlight) {
         this.isFlight = isFlight;
@@ -354,7 +391,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ?л??????
+     * 切换前后相机
      */
     public void switchCamera() {
         if(this.cameraType == CAMERA_BACK) {
@@ -366,7 +403,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ?л????
+     * 设置滤镜
      */
     public void setEffect(int type) {
         this.effectType = type;
@@ -378,7 +415,7 @@ public class CameraUIHelper {
     }
 
     /**
-     * ?л???????
+     * 设置聚焦
      */
     public void switchFocusMode() {
         if(this.focusType == FOCUS_AUTO) {
@@ -424,18 +461,18 @@ public class CameraUIHelper {
     }
 
     /**
-     * ???
+     * 暂停
      */
-    private void pause() {
+    public void pause() {
         if(streamingSender != null) {
             streamingSender.pause();
         }
     }
 
     /**
-     * ????
+     * 回复
      */
-    private void resume() {
+    public void resume() {
         if(streamingSender != null) {
             streamingSender.resume();
         }
@@ -445,7 +482,7 @@ public class CameraUIHelper {
         return cameraLivingView;
     }
 
-    /****************????????********************/
+    /****************声明周期*****************/
     public void onStart() {
         resume();
     }

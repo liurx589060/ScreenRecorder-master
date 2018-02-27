@@ -180,7 +180,7 @@ public class AudioRecordActivity extends Activity implements View.OnClickListene
     }
 
     private void stopAudioRecord() {
-        AudioRecordOpt.getInstance().stopAudioRecord();
+        AudioRecordOpt.getInstance().stopRecord();
         mButton.setText("Restart recorder");
     }
 }

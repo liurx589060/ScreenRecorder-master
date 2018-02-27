@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  * Created by daven.liu on 2017/9/13 0013.
  */
 
-public class ScreenRecordOpt {
+public class ScreenRecordOpt implements IRecordOpt{
     private static ScreenRecordOpt instance = null;
 
     private RtmpStreamingSender streamingSender;
@@ -75,7 +75,8 @@ public class ScreenRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void stopScreenRecord() {
+    @Override
+    public void stopRecord() {
         if(mVideoRecorder != null) {
             mVideoRecorder.quit();
             mVideoRecorder = null;
@@ -100,11 +101,13 @@ public class ScreenRecordOpt {
         isRecording = false;
     }
 
+    @Override
     public boolean isRecording() {
         return isRecording;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
     public void pause() {
         if(streamingSender != null) {
             streamingSender.pause();
@@ -116,6 +119,7 @@ public class ScreenRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
     public void resume() {
         if(streamingSender != null) {
             streamingSender.resume();
@@ -126,6 +130,7 @@ public class ScreenRecordOpt {
         }
     }
 
+    @Override
     public boolean isMic() {
         if(audioClient == null) return false;
         return audioClient.isMic();
@@ -135,6 +140,7 @@ public class ScreenRecordOpt {
      * 是否静音，true 为使用麦克风，false为不是用麦克风
      * @param mute
      */
+    @Override
     public void setMic(boolean mute) {
         if(audioClient != null) {
             audioClient.setMic(mute);

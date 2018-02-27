@@ -14,6 +14,7 @@ import net.yrom.demo.R;
 import net.yrom.screenrecorder.operate.CameraRecordOpt;
 import net.yrom.screenrecorder.operate.ICameraCallBack;
 import net.yrom.screenrecorder.operate.RecorderBean;
+import net.yrom.screenrecorder.ui.CameraUIHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,33 +59,46 @@ public class LaunchActivity extends AppCompatActivity {
 //                CameraActivity.launchActivity(this);
 
                 RecorderBean recorderBean = new RecorderBean();
-                recorderBean.setRtmpAddr("rtmp://192.168.1.102/live/stream");
-                recorderBean.setWidth(1920);
-                recorderBean.setHeight(1080);
+                recorderBean.setRtmpAddr("rtmp://10.10.15.19/live/stream");
+                recorderBean.setWidth(1080);
+                recorderBean.setHeight(1920);
                 CameraRecordOpt.getInstance().setCameraCallBack(new ICameraCallBack() {
                     @Override
-                    public void onSuccess() {
+                    public void onCameraOpenSuccess() {
+                        super.onCameraOpenSuccess();
                         Toast.makeText(LaunchActivity.this,"success",Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onError() {
-                        Toast.makeText(LaunchActivity.this,"error",Toast.LENGTH_SHORT).show();
+                    public void onCameraOpenError() {
+                        Toast.makeText(LaunchActivity.this,"success",Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onSwitchCamera() {
-                        Toast.makeText(LaunchActivity.this,"onSwitchCamera",Toast.LENGTH_SHORT).show();
+                    public void onSwitchCamera(int cameraType) {
+                        super.onSwitchCamera(cameraType);
+                        String cameraTypeStr = cameraType== CameraUIHelper.CAMERA_BACK?"后置摄像头":"前置摄像头";
+                        Toast.makeText(LaunchActivity.this,"onSwitchCamera--" + cameraTypeStr,Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onLiveStart() {
-                        Toast.makeText(LaunchActivity.this,"onLiveStart",Toast.LENGTH_SHORT).show();
+                    public void onLiveStart(String rtmpAddress) {
+                        Toast.makeText(LaunchActivity.this,"onLiveStart--" + rtmpAddress,Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onLiveStop() {
                         Toast.makeText(LaunchActivity.this,"onLiveStop",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void sendError() {
+                        Toast.makeText(LaunchActivity.this,"sendError",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void connectError() {
+                        Toast.makeText(LaunchActivity.this,"connectError",Toast.LENGTH_SHORT).show();
                     }
                 });
                 CameraRecordOpt.getInstance().startCameraRecordWithActivity(this,recorderBean,CameraRecordActivity.class);

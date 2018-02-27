@@ -10,10 +10,11 @@ import net.yrom.screenrecorder.ui.CameraUIHelper;
  * Created by daven.liu on 2017/9/14 0014.
  */
 
-public class CameraRecordOpt {
+public class CameraRecordOpt implements IRecordOpt{
     private static CameraRecordOpt instance = null;
     private RecorderBean recorderBean;
     private ICameraCallBack cameraCallBack;
+    private boolean isExtraActivity;
 
 
     private CameraUIHelper mCameraUIHelper;
@@ -34,6 +35,7 @@ public class CameraRecordOpt {
         Intent intent = new Intent(context,newActivity);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
+        isExtraActivity = true;
     }
 
     /**
@@ -59,6 +61,7 @@ public class CameraRecordOpt {
      * 是否静音
      * @param isMic
      */
+    @Override
     public void setMic(boolean isMic) {
         if(mCameraUIHelper != null) {
             mCameraUIHelper.setMic(isMic);
@@ -127,6 +130,16 @@ public class CameraRecordOpt {
         this.mCameraUIHelper = mCameraUIHelper;
     }
 
+    @Override
+    public void stopRecord() {
+        if(isExtraActivity) {
+            destroyWithActivity();
+        }else {
+            destroyNoActivity();
+        }
+    }
+
+    @Override
     public boolean isRecording() {
         if(mCameraUIHelper != null) {
             mCameraUIHelper.isRecording();
@@ -134,6 +147,21 @@ public class CameraRecordOpt {
         return false;
     }
 
+    @Override
+    public void pause() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.pause();
+        }
+    }
+
+    @Override
+    public void resume() {
+        if(mCameraUIHelper != null) {
+            mCameraUIHelper.resume();
+        }
+    }
+
+    @Override
     public boolean isMic() {
         if(mCameraUIHelper != null) {
             mCameraUIHelper.isMic();

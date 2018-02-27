@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
  * Created by daven.liu on 2018/2/27 0027.
  */
 
-public class AudioRecordOpt {
+public class AudioRecordOpt implements IRecordOpt{
     private static AudioRecordOpt instance = null;
     private RtmpStreamingSender streamingSender;
     private RESCoreParameters coreParameters;
@@ -61,11 +61,13 @@ public class AudioRecordOpt {
         isRecording = true;
     }
 
+    @Override
     public boolean isRecording() {
         return isRecording;
     }
 
-    public void stopAudioRecord() {
+    @Override
+    public void stopRecord() {
         if(audioClient != null) {
             audioClient.stop();
             audioClient.destroy();
@@ -86,18 +88,21 @@ public class AudioRecordOpt {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
     public void pause() {
         if(streamingSender != null) {
             streamingSender.pause();
         }
     }
 
+    @Override
     public void resume() {
         if(streamingSender != null) {
             streamingSender.resume();
         }
     }
 
+    @Override
     public boolean isMic() {
         if(audioClient == null) return false;
         return audioClient.isMic();
@@ -107,6 +112,7 @@ public class AudioRecordOpt {
      * 是否静音，true 为使用麦克风，false为不是用麦克风
      * @param mute
      */
+    @Override
     public void setMic(boolean mute) {
         if(audioClient != null) {
             audioClient.setMic(mute);
