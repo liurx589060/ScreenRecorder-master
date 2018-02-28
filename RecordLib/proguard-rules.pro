@@ -60,3 +60,4 @@
 -keep class net.yrom.screenrecorder.operate.** {*;}
 -keep class net.yrom.screenrecorder.task.RtmpStreamingSender$IRtmpSendCallBack {*;}
 -keep class net.yrom.screenrecorder.ui.CameraUIHelper {*;}
+-keep class net.yrom.screenrecorder.tools.ResourceUtil {*;}
