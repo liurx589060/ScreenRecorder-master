@@ -1,0 +1,8 @@
+<resources>
+
+    <style name="NiceOption_Landscape">
+        <item name="android:layout_width">@dimen/dp_z_100</item>
+        <item name="android:layout_height">@dimen/dp_z_100</item>
+    </style>
+
+</resources>
